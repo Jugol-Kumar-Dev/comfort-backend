@@ -3,8 +3,11 @@
         <div class="card card-custom">
             <div class="card-header flex-wrap py-5">
                 <div class="card-title">
-                    <h3 class="card-label">All Category
+                    <div v-if="!isLoading">
+                        <h3 class="card-label">All Category
                         <span class="d-block text-muted pt-2 font-size-sm">all category details is here</span></h3>
+                    </div>
+                    <RequestLoading :isShow="isLoading" text="Loadin....."/>
                 </div>
                 <div class="card-toolbar">
                     <!--begin::Button-->
@@ -37,15 +40,15 @@
                     </tr>
                     </thead>
                     <tbody>
-                        <tr v-for="(cat, i) in categories" :key="`key-is-cat-${i}`">
+                        <tr v-for="(cat, i) in categories?.data" :key="`key-is-cat-${i}`">
                             <td>{{ i+1 }}</td>
                             <td>
                                 <span class="symbol-label">
-                                     <img :src="`${cat.photo}`" alt="" style="height:35px">
+                                     <img :src="`/storage/${cat?.photo}`" alt="" style="height:35px">
                                 </span>
                             </td>
                             <td>{{ cat.name }}</td>
-                            <td>{{ cat?.parent_category?.name ?? '------'}}</td>
+                            <td>{{ cat?.parent?.name ?? '------'}}</td>
 <!--                            <td>{{ cat.description }}</td>-->
                             <td>
                                 <router-link :to="{name:'EditCategory', params:{id:cat.id} }" class="btn btn-sm btn-clean btn-icon" title="Edit details">
@@ -82,15 +85,20 @@
 </template>
 
 <script>
+import RequestLoading from "@/components/RequestLoading.vue";
+
 export default {
     name: "Index",
+    components: {RequestLoading},
     data() {
         return {
+            isLoading:false,
             categories : {}
         }
     },
     methods: {
         allCategories() {
+            this.isLoading = true;
             this.$axios.get('api/category')
                 .then(res => {
                     this.categories = res.data
@@ -102,8 +110,12 @@ export default {
                         title: err.response.statusText
                     })
                 })
+                .finally(final =>{
+                    this.isLoading = false;
+                })
         },
         deleteCategory(id){
+            this.isLoading = true;
             Swal.fire({
                 title: 'Are You Sure!',
                 text: 'you watnt to delete this?',
@@ -114,6 +126,7 @@ export default {
                 showCancelButton:true,
             }).then((result) => {
                 if (result.value){
+                    this.isLoading = true;
                     this.$axios.delete('/api/category/'+id)
                     .then(res => {
                         Toast.fire({
@@ -128,6 +141,9 @@ export default {
                             title: err.response.statusText
                         })
                     })
+                    .finally(final =>{
+                        this.isLoading = false;
+                    })
                 }
             }).catch(() => {
                 Swal.fire({
@@ -135,6 +151,9 @@ export default {
                     title: 'dont worry. your data is safe...'
                 })
                 this.$router.push({name:'ManageEmployee'});
+            })
+            .finally(final =>{
+                this.isLoading = false;
             })
         },
 

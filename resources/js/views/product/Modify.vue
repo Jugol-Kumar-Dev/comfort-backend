@@ -32,17 +32,20 @@
             <div class="col-md-9">
                 <div class="card" v-if="currentTab === 'details'">
                     <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                        <h3 class="card-title m-0">Product Details</h3>
+                        <div>
+                            <h3 class="card-title m-0">Product Details</h3>
+                            <RequestLoading :is-show="loading"/>
+                        </div>
                         <button class="btn btn-primary btn-sm" @click="updateProductDetails">Update Info</button>
                     </div>
                     <div class="card-body">
-                        <div>
+                        <form @submit.prevent="updateProductDetails">
                             <div class="form-row">
                                 <div class="col-md-4 form-group">
                                     <label for="productname">Product Name</label>
                                     <input type="text"
                                            id="productname"
-                                           v-model="productName"
+                                           v-model="productDetails.productName"
                                            placeholder="Product Name"
                                            class="form-control">
                                 </div>
@@ -50,7 +53,7 @@
                                     <label for="dPrice">Default Price</label>
                                     <input type="text"
                                            id="dPrice"
-                                           v-model="defaultPrice"
+                                           v-model="productDetails.defaultPrice"
                                            placeholder="Default Price."
                                            class="form-control">
                                 </div>
@@ -58,7 +61,7 @@
                                     <label for="defaultStoke">Default Quantity</label>
                                     <input type="text"
                                            id="defaultStoke"
-                                           v-model="defaultStoke"
+                                           v-model="productDetails.defaultStoke"
                                            placeholder="Default Quantity..."
                                            class="form-control">
                                 </div>
@@ -67,11 +70,11 @@
                             <div class="form-row">
                                 <div class="col-md-6 form-group">
                                     <label>Category</label>
-                                    <TreeCategory v-model="categoryId"/>
+                                    <TreeCategory v-model="productDetails.categoryId"/>
                                 </div>
                                 <div class="col-md-6 form-group">
                                     <label>Brand</label>
-                                    <v-select v-model="brandId"
+                                    <v-select v-model="productDetails.brandId"
                                               class="form-control"
                                               :reduce="brand => brand.id" :options="brands"
                                               label="title" placeholder="Select Brand..."/>
@@ -80,7 +83,7 @@
 
                             <div class="form-group">
                                 <label for="description">Description</label>
-                                <textarea v-model="description"
+                                <textarea v-model="productDetails.description"
                                           id="description" cols="30" rows="4"
                                           class="form-control"></textarea>
                             </div>
@@ -88,9 +91,9 @@
 
                             <div class="form-group">
                                 <label>Full Details</label>
-                                <SummernoteEditor v-model="details"/>
+                                <SummernoteEditor v-model="productDetails.details"/>
                             </div>
-                        </div>
+                        </form>
                     </div>
                 </div>
 
@@ -207,7 +210,7 @@
                         </div>
                         <div class="mu-container" :class="isInvalid?'mu-red-border':''">
                             <div class="mu-elements-wraper">
-                                <div v-for="(image, index) in productImages" :key="index" class="mu-image-container">
+                                <div v-for="(image, index) in productDetails.productImages" :key="index" class="mu-image-container">
                                     <img :src="`/storage/uploads/${image.image}`" alt="" class="mu-images-preview">
                                     <button @click="deleteImage(image?.id, index)" class="mu-close-btn" type="button">
                                         <svg
@@ -318,11 +321,13 @@ import TreeCategory from '@/components/TreeCategory.vue'
 import Uploader from "vue-media-upload";
 import SummernoteEditor from 'vue3-summernote-editor';
 import ComponentLoader from "@/components/ComponentLoader.vue";
+import RequestLoading from "@/components/RequestLoading.vue";
 
 
 export default {
     name: "Index",
     components: {
+        RequestLoading,
         ComponentLoader,
         TreeCategory,
         SummernoteEditor,
@@ -336,15 +341,18 @@ export default {
             currentTab: "details",
             variationDivider: "/",
             varientSkuPrefix: "Ver-",
-            defaultQty: 13,
 
-            productName: null,
-            defaultPrice: null,
-            defaultStoke: null,
-            description: null,
-            details: null,
-            categoryId: 1,
-            brandId: null,
+            productDetails:{
+                productName: null,
+                defaultPrice: null,
+                defaultStoke: null,
+                description: null,
+                details: null,
+                categoryId: null,
+                brandId: null,
+                productImages:null
+            },
+
             images: [],
             variants:[],
             product_variant: [
@@ -571,7 +579,6 @@ export default {
 
         // get all variations
         allBrands() {
-
             this.loading = true
             this.$axios.get('/api/brand', this.from)
                 .then(res => {
@@ -591,43 +598,23 @@ export default {
         // store product into database
 
         updateProductDetails(){
-            const formData = new FormData();
-            formData.append(`name`, this.productName);
-            formData.append(`defaultPrice`, this.defaultPrice);
-            formData.append(`defaultQty`, this.defaultStoke);
-            formData.append(`categoryId`, this.categoryId);
-            formData.append(`brandId`, this.brandId);
-            formData.append(`description`, this.description);
-            formData.append(`details`, this.details);
-            formData.append(`stock`,  this.defaultStoke);
-
-
-            const productData = {
-                name: this.productName,
-                defaultPrice: this.defaultPrice,
-                defaultQty: this.defaultStoke,
-                categoryId: this.categoryId,
-                brandId: this.brandId,
-                description: this.description,
-                details: this.details,
-                stock: this.defaultStoke
-            };
-
-            this.$axios.put(`/api/product/${this.$route.params.id}`, productData)
-                .then(res => {
-                    Toast.fire({
-                        icon: 'success',
-                        title: res.data.message
-                    })
-                    this.$refs.Close.click();
-                    this.allProducts();
+            this.loading = true;
+            this.$axios.put(`/api/product/${this.$route.params.id}`, this.productDetails)
+            .then(res => {
+                Toast.fire({
+                    icon: 'success',
+                    title: res.data.message
                 })
-                .catch(err => {
-                    console.log(err)
-                })
+                this.$refs.Close.click();
+                this.allProducts();
+            })
+            .catch(err => {
+                console.log(err)
+            }).finally(() => this.loading = false)
         },
 
         saveVariation(){
+            this.loading = true;
             this.$axios.post('/api/save-product-variations', {variations:this.product_variant_prices, varArray:this.product_variant, productId:this.$route.params.id})
             .then(res => {
                 Toast.fire({
@@ -640,9 +627,10 @@ export default {
                     icon: 'error',
                     title: err.response.data.message
                 });
-            })
+            }).finally(() => this.loading = false)
         },
         saveImages(){
+            this.loading = true;
             const formData = new FormData();
             for (let i = 0; i < this.images.length; i++) {
                 formData.append(`files[${i}]`, this.images[i].file);
@@ -661,7 +649,7 @@ export default {
                         icon: 'error',
                         title: err.response.data.message
                     });
-                })
+                }).finally(() => this.loading = false)
         },
 
         handleFileChange(event) {
@@ -682,7 +670,6 @@ export default {
             for (var i = 0; i < files.length; i++) {
                 let url = URL.createObjectURL(files[i]);
                 let addedImage = {url: url, name: files[i].name, size: files[i].size, type: files[i].type};
-                // this.addedMedia.push(addedImage);
             }
         },
         removeMedia(index) {
@@ -693,19 +680,18 @@ export default {
             this.images.splice(index, 1);
         },
         getProduct(){
-
             this.loading = true
             this.$axios.get(`/api/product/${this.$route.params.id}`)
             .then(res => {
                 console.log(res.data)
-                this.productName = res.data?.title;
-                this.defaultPrice = res.data?.selling_price;
-                this.defaultStoke = res.data?.stok;
-                this.description = res.data?.description;
-                this.details = res.data?.details;
-                this.categoryId = res.data?.category?.id;
-                this.brandId = res.data?.brand?.id;
-                this.productImages = res.data?.images
+                this.productDetails.productName = res.data?.title;
+                this.productDetails.defaultPrice = res.data?.price;
+                this.productDetails.defaultStoke = res.data?.stock;
+                this.productDetails.description = res.data?.description;
+                this.productDetails.details = res.data?.details;
+                this.productDetails.categoryId = res.data?.category?.id;
+                this.productDetails.brandId = res.data?.brand?.id;
+                this.productDetails.productImages = res.data?.images
             })
             .catch(err => {
                 console.log(err)

@@ -13,12 +13,12 @@ class ReviewController extends Controller
      */
     public function index()
     {
-        $reviews = Review::query()->with('product');
-
+        $reviews = Review::query()
+            ->with('product');
         if (\request()->has('onlyData')){
-            return response()->json($reviews->get(), 200);
+            return response()->json($reviews->oldest()->get(), 200);
         }else{
-            $reviews = $reviews->paginate(10)->withQueryString();
+            $reviews = $reviews->oldest()->paginate(10)->withQueryString();
             return response()->json($reviews, 200);
         }
     }

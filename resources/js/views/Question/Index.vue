@@ -14,8 +14,8 @@
                         <th class="text-center">ID</th>
                         <th>Customer</th>
                         <th>Product</th>
-                        <th>Total</th>
-                        <th width="20%">Review</th>
+                        <th width="20%">question</th>
+                        <th>Answer</th>
                         <th>Order Date</th>
                         <th>Actions</th>
                     </tr>
@@ -35,16 +35,31 @@
                         <td>
                             <router-link :to="`/modify-product/${item?.product?.id}`">{{ item?.product?.title }}</router-link>
                         </td>
-                        <td>{{ item.rating }} out of 5</td>
-
                         <td>
                             <div class="d-flex gap-2 flex-column">
                                 <strong class="text-capitalize">{{ item?.title }}</strong>
-                                <p>{{ item?.review }}</p>
+                                <p>{{ item?.question }}</p>
                             </div>
                         </td>
                         <td>{{ moment(item?.created_at).format('lll') }}</td>
                         <td>
+                            <button @click="givenAnswer" class="btn btn-sm btn-clean btn-icon"
+                               title="Delete">
+                                <span class="svg-icon svg-icon-md">
+                                    <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+                                         width="24px" height="24px" viewBox="0 0 24 24" version="1.1">
+                                        <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+                                            <rect x="0" y="0" width="24" height="24" />
+                                            <path
+                                                d="M6,8 L6,20.5 C6,21.3284271 6.67157288,22 7.5,22 L16.5,22 C17.3284271,22 18,21.3284271 18,20.5 L18,8 L6,8 Z"
+                                                fill="#000000" fill-rule="nonzero" />
+                                            <path
+                                                d="M14,4.5 L14,4 C14,3.44771525 13.5522847,3 13,3 L11,3 C10.4477153,3 10,3.44771525 10,4 L10,4.5 L5.5,4.5 C5.22385763,4.5 5,4.72385763 5,5 L5,5.5 C5,5.77614237 5.22385763,6 5.5,6 L18.5,6 C18.7761424,6 19,5.77614237 19,5.5 L19,5 C19,4.72385763 18.7761424,4.5 18.5,4.5 L14,4.5 Z"
+                                                fill="#000000" opacity="0.3" />
+                                        </g>
+                                    </svg>
+                                </span>
+                            </button>
                             <a href="javascript:void(0)" @click="deleteCustomer(item.id)" class="btn btn-sm btn-clean btn-icon"
                                title="Delete">
                                 <span class="svg-icon svg-icon-md">
@@ -108,7 +123,7 @@ export default {
     },
     methods: {
         allOrder(path) {
-            this.$axios.get(path ?? '/api/review', {
+            this.$axios.get(path ?? '/api/question', {
                 headers: {
                     'Authorization': `Bearer ${this.user?.token}`
                 }
@@ -125,7 +140,7 @@ export default {
             });
         },
 
-        showSingleOrder(info) {
+        givenAnswer(info) {
             $('#exampleModal').modal('show');
             this.orderDetails = info;
         },

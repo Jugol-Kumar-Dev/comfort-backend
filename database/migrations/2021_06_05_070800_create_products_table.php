@@ -19,6 +19,7 @@ class CreateProductsTable extends Migration
             $table->string('slug')->unique();
             $table->mediumText('description')->nullable();
             $table->longText('details')->nullable();
+            $table->string('sku')->nullable();
             $table->integer('stock')->nullable();
             $table->foreignId('category_id')->constrained('categories')->onDelete('cascade')->onUpdate('cascade');
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade')->onUpdate('cascade');
@@ -29,13 +30,10 @@ class CreateProductsTable extends Migration
 
             $table->string('photo')->nullable();
             $table->string('root')->nullable();
-            $table->float('buying_price')->default(0);
-            $table->float('selling_price')->default(0);
-            $table->float('discount')->default(0);
+            $table->integer('price');
+            $table->integer('discount');
             $table->string('size')->default(0);
-            $table->enum('status',['active','inactive'])->default('inactive');
-//            $table->foreignId('supplier_id')->constrained('suppliers')->onDelete('cascade');
-//            $table->foreignId('supplier_id');
+            $table->enum('status', ['active','inactive'])->default('active');
             $table->timestamps();
         });
     }

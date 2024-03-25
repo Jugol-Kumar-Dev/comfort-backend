@@ -20,15 +20,14 @@ class BrandController extends Controller
             'photo' => 'required',
         ]);
 
-        $photo = $request->image;
-        $imageName = time().random_int(1,9999).'.'.$photo->getClientOriginalExtension();
-
-        $photo->storeAs('public/brands/', $imageName);
-        $uploadPath = "storage/brands/$imageName";
-
         $data = $request->all();
+        if (\Illuminate\Support\Facades\Request::hasFile('image')){
+            $file =  \Illuminate\Support\Facades\Request::file('image');
+            $icon = $file->store('/uploads');
+            $data['photo'] = $icon;
+        }
+
         $data['slug'] = Str::slug($request->title);
-        $data['photo'] = $uploadPath;
         Brand::create($data);
         return response()->json(['message' => 'Brand save successfully done.'], 200);
     }
@@ -40,8 +39,29 @@ class BrandController extends Controller
     {
         //
     }
+    public function updateBrand(Request $request)
+    {
+        $this->validate($request, [
+            'title' => 'required|max:30|min:1|unique:brands,title,' .$request->id,
+        ]);
+
+        $data = Brand::findOrFail($request->input('id'));
+
+        if (\Illuminate\Support\Facades\Request::hasFile('image')){
+            $file =  \Illuminate\Support\Facades\Request::file('image');
+            $icon = $file->store('/uploads');
+            $data->photo = $icon;
+        }
+
+        $data->title = $request->input('title');
+        $data->slug = Str::slug($request->title);
+        $data->update();
+        return response()->json(['message' => 'Brand save successfully done.'], 200);
+    }
+
     public function destroy(Brand $brand)
     {
-        //
+        $brand->delete();
+        return response()->json(['message' => 'Brand Delete done.'], 200);
     }
 }

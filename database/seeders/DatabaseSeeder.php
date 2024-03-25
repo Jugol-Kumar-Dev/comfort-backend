@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\User;
+use Database\Factories\UserFactory;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
@@ -15,9 +16,6 @@ class DatabaseSeeder extends Seeder
     public function run()
     {
 //        $this->call(UserSeeder::class);
-//        $this->call(MonthSeeder::class);
-         User::factory(50)->create();
-
-//         $this->call(CategorySeeder::class);
+        User::factory(100)->create();
     }
 }

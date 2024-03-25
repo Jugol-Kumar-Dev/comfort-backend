@@ -15,15 +15,10 @@ class AuthController extends Controller
 {
     //login function
     public function login(Request $request){
-
-
         $request->validate([
             'email' =>'required',
             'password' => 'required'
         ]);
-
-
-
         if(Auth::attempt(['email' => $request->email, 'password' => $request->password])){
             if(Auth::user()->role != "admin"){
                 Auth::logout();
@@ -36,6 +31,10 @@ class AuthController extends Controller
             return response()->json([
                 "message" => "User Login Successfully Done...",
                 "data" =>$user
+            ]);
+        }else{
+            throw ValidationException::withMessages([
+                'email' => 'These credentials do not match our records.',
             ]);
         }
     }

@@ -2,36 +2,48 @@
     <div>
         <div class="card card-custom">
             <div class="card-header">
-                <h3 class="card-title">Add New Category</h3>
+                <div class="card-title d-flex gap-5">
+                    <h3 v-if="!isLoading">Add New Category</h3>
+                    <RequestLoading :isShow="isLoading"/>
+                </div>
             </div>
+
             <!--begin::Form-->
             <form class="form" @submit.prevent="saveCategory()" enctype="multipart/form-data">
                 <div class="card-body">
-
                     <div class="form-group">
                         <label>Parent Category</label>
-                        <TreeCategory v-model="from.parent"/>
+                        <TreeCategory :disabled="requestLoading" v-model="from.parent"/>
                     </div>
 
                     <div class="form-group">
                         <label>Category Name</label>
-                        <input type="text" class="form-control form-control-solid" v-model="from.name" placeholder="Enter category name..."/>
+                        <input type="text" :disabled="requestLoading" class="form-control form-control-solid" v-model="from.name" placeholder="Enter category name..."/>
                         <small class="text-danger" v-if="errors.name">{{ errors.name[0]}}</small>
                     </div>
 
                     <div class="form-group">
+                        <label>Category Icon</label>
+                        <a href="https://icones.js.org/" target="_blank">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><path fill="currentColor" d="M11.37 10.384a1.5 1.5 0 0 0 0 2.121l.067.067a1.5 1.5 0 0 0 2.122 0l3.115-3.115c.144-.144.253-.31.326-.488V17a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h7.851a1.5 1.5 0 0 0-.366.269z"/><path fill="currentColor" fill-rule="evenodd" d="M19.218 4.782a.5.5 0 0 1 0 .708l-6.364 6.364a.5.5 0 0 1-.708-.707l6.364-6.365a.5.5 0 0 1 .707 0" clip-rule="evenodd"/><path fill="currentColor" fill-rule="evenodd" d="M14 4.5a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 .5.5v5a.5.5 0 0 1-1 0V5h-4.5a.5.5 0 0 1-.5-.5" clip-rule="evenodd"/></svg>
+                        </a>
+
+                        <textarea class="form-control" :disabled="requestLoading" v-model="from.icon" rows="3" placeholder="Svg Icon ......."></textarea>
+                    </div>
+                    <div class="form-group">
                         <label>Category Description</label>
-                        <textarea class="form-control" v-model="from.description" rows="3" placeholder="category description......."></textarea>
+                        <textarea class="form-control" :disabled="requestLoading" v-model="from.description" rows="3" placeholder="category description......."></textarea>
                     </div>
 
 
 
-                    <div class="form-group">
-                        <label>Category Details</label>
-                        <SummernoteEditor v-model="from.details"/>
-                    </div>
+<!--                    <div class="form-group">-->
+<!--                        <label>Category Details</label>-->
+<!--                        <SummernoteEditor v-model="from.details"/>-->
+<!--                    </div>-->
 
-                    <div class="form-group">
+                    <div class="form-group d-flex flex-column">
+                        <small class="text-danger" v-if="errors.name">{{ errors.photo[0]}}</small>
                         <label class="btn btn-clean"
                                style="
                                 border: dashed 2px;
@@ -48,11 +60,11 @@
                             </svg><!--end::Svg Icon-->
                         </span>
 
-
-
-
                         </label>
-<!--                        <label htmlFor="upload" >-->
+
+
+
+                        <!--                        <label htmlFor="upload" >-->
 <!--                            Upload Here-->
 <!--                        </label>-->
 <!--                        <input type="file" id="upload" style="display:none"/>-->
@@ -61,8 +73,9 @@
 
                     <img v-if="from.photo" :src="from.photo" alt="" style="width: 180px;height: 120px; object-fit: contain;">
                 </div>
-                <div class="card-footer">
-                    <button type="submit" class="btn btn-primary mr-2">Submit</button>
+                <div class="card-footer d-flex">
+                    <RequestLoading :isShow="isLoading"/>
+                    <button v-if="!isLoading" type="submit" class="btn btn-primary mr-2">Submit</button>
                     <button type="reset" class="btn btn-secondary">Cancel</button>
                 </div>
             </form>
@@ -76,19 +89,23 @@
 <script>
 import SummernoteEditor from 'vue3-summernote-editor';
 import TreeCategory from "@/components/TreeCategory.vue";
+import RequestLoading from "@/components/RequestLoading.vue";
 
 export default {
     name: "Add",
-    components: {TreeCategory, SummernoteEditor},
+    components: {RequestLoading, TreeCategory, SummernoteEditor},
     data(){
         return{
+            isLoading:false,
+
             rawHtml: "this is my data",
             from: {
                 parent:null,
                 name: '',
                 description:'',
-                details: '',
+                // details: '',
                 photo:'',
+                icon:''
             },
             avatar:{},
             errors:{},
@@ -96,34 +113,29 @@ export default {
     },
     methods: {
         uploadFile(event){
-            // let File = event.target.files[0];
-            // this.avatar = File;
-            // let reader = new FileReader();
-            // reader.onload = event => {
-            //     this.from.photo = event.target.result
-            // }
-            // reader.readAsDataURL(File);
-
             this.avatar = event.target.files[0];
             this.from.photo = URL.createObjectURL(event.target.files[0])
         },
         saveCategory(){
+            this.isLoading = true;
             let formdata = new FormData;
             formdata.append('image', this.avatar);
             formdata.append('parent', this.from.parent)
             formdata.append('name', this.from.name)
             formdata.append('description', this.from.description)
-            formdata.append('details', this.from.details)
             formdata.append('photo', this.from.photo)
+            formdata.append('icon', this.from.icon)
 
             this.$axios.post('api/category', formdata)
             .then( res => {
                 this.from= '';
                 this.errors = '';
+                this.avatar = ''
                 Toast.fire({
                     icon: 'success',
                     title: res.data.message
                 })
+                this.$router.push({name:'ManageCategory'});
             })
             .catch(err => {
                 this.errors = err.response.data.errors;
@@ -131,6 +143,9 @@ export default {
                     icon: 'warning',
                     title: err.response.statusText
                 })
+            })
+            .finally(final =>{
+                this.isLoading = false;
             })
         },
     },

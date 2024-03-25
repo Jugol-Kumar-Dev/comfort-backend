@@ -3,9 +3,10 @@
         <div class="card card-custom">
             <div class="card-header flex-wrap py-5">
                 <div class="card-title">
-                    <h3 class="card-label">All Brands
+                    <h3 v-if="!isLoading" class="card-label">All Brands
                         <span class="d-block text-muted pt-2 font-size-sm">all brnds details is here</span>
                     </h3>
+                    <RequestLoading :isShow="isLoading" text="Loading....."/>
                 </div>
                 <div class="card-toolbar">
                     <!--begin::Button-->
@@ -43,7 +44,7 @@
                             <td>{{ i + 1 }}</td>
                             <td>
                                 <span class="symbol-label">
-                                    <img :src="`${brand.photo}`" style="width: 130px; height: 80px; object-fit: contain">
+                                    <img :src="`/storage/${brand.photo}`" style="width: 130px; height: 80px; object-fit: contain">
                                 </span>
                             </td>
                             <td>{{ brand.title }}</td>
@@ -94,15 +95,20 @@
 </template>
 
 <script>
+import RequestLoading from "@/components/RequestLoading.vue";
+
 export default {
     name: "Index",
+    components: {RequestLoading},
     data() {
         return {
+            isLoading:false,
             brands: {}
         }
     },
     methods: {
         allBrands() {
+            this.isLoading = true;
             this.$axios.get('api/brand')
                 .then(res => {
                     this.brands = res.data
@@ -113,6 +119,9 @@ export default {
                         icon: 'warning',
                         title: err.response.statusText
                     })
+                })
+                .finally(final =>{
+                    this.isLoading = false;
                 })
         },
         deleteBrand(id) {
@@ -132,13 +141,16 @@ export default {
                                 icon: 'success',
                                 title: res.data.message
                             })
-                            this.allbrandegories();
+                            this.allBrands();
                         })
                         .brandch(err => {
                             Toast.fire({
                                 icon: 'error',
                                 title: err.response.statusText
                             })
+                        })
+                        .finally(final =>{
+                            this.isLoading = false;
                         })
                 }
             }).brandch(() => {

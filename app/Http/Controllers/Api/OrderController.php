@@ -21,7 +21,7 @@ class OrderController extends Controller
     public function index(Request $request)
     {
         $user = $request->user();
-        $orders = Order::query()->with(['orderdetails', 'orderdetails.product', 'orderdetails.stoke'])
+        $orders = Order::query()->with(['orderdetails', 'orderdetails.product', 'orderdetails.product.images', 'orderdetails.stoke'])
             ->where('user_id', $user->id)
             ->paginate(10);
 
@@ -50,16 +50,31 @@ class OrderController extends Controller
                 $orderDetails[] =[
                   'order_id' => $order->id,
                   'product_id' => $item['data']['id'],
-                  'product_stock_id' => $item["selectSku"]["id"],
+                  'product_stock_id' => (!empty($item["selectSku"]) && !empty($item["selectSku"]["id"])) ? $item["selectSku"]["id"] : NULL,
                   'quantity' => $item["selectSku"]["selectQty"]
                 ];
-                $stock = ProductStock::where('id', $item["selectSku"]["id"])->first();
-                $stock->qty = $stock->qty - $item["selectSku"]["selectQty"];
-                $stock->save();
+                if(!empty($item["selectSku"]) && !empty($item["selectSku"]["id"])){
+                    $stock = ProductStock::where('id', $item["selectSku"]["id"])->first();
+                    if($stock){
+                        $stock->qty = $stock->qty - $item["selectSku"]["selectQty"];
+                        $stock->save();
+                    }
+                }
+                if(!empty($item["selectSku"]) && !empty($item["selectSku"]["sku"])){
+                    $product = Product::query()->whereSku($item["selectSku"]["sku"])->first();
+                    if($product){
+                        $product->stock = $product->stock - $item["selectSku"]["selectQty"];
+                        $product->save();
+                    }
+                }
             }
+
+//            return $orderDetails;
+
             $order->orderdetails()->createMany($orderDetails);
 
 
+            return $order;
 
 //            $posProducts = Pos::all();
 

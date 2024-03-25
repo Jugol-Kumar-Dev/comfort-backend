@@ -7,12 +7,14 @@ use Illuminate\Database\Eloquent\Model;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
+
 class Product extends Model
 {
     use HasFactory, HasSlug;
 
-//    protected $connection = "variationDb";
+    // protected $connection = "variationDb";
     protected $guarded = ['id'];
+
 
     public function category(){
         return $this->belongsTo(Category::class);

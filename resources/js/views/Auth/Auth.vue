@@ -55,13 +55,19 @@ export default {
             this.data.isLoading = true;
             this.$axios.post('/api/auth/login', this.data)
                 .then(res => {
-                    User.responseAfterLogin(JSON.stringify(res?.data?.data));
-                    Toast.fire({
-                        icon: 'success',
-                        title: 'Login Successfully Done..'
-                    })
-
-                    this.$router.push({ name: 'Dashboard' });
+                    if(res?.data?.data){
+                        User.responseAfterLogin(JSON.stringify(res?.data?.data));
+                        Toast.fire({
+                            icon: 'success',
+                            title: 'Login Successfully Done..'
+                        })
+                        this.$router.push({ name: 'Dashboard' });
+                    }else{
+                        Toast.fire({
+                            icon: 'error',
+                            title: 'Credential Invalid...'
+                        })
+                    }
                     this.data.isLoading = false;
                 })
                 .catch(e => {

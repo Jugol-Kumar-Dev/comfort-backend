@@ -1,11 +1,12 @@
 <template lang="html">
     <div>
-        <ComponentLoader v-if="loading"/>
+        <ComponentLoader v-if="isLoading"/>
+
         <div v-else class="card card-custom">
             <div class="card-header flex-wrap py-5">
                 <div class="card-title">
                     <h3 class="card-label">All Products
-                        <span class="d-block text-muted pt-2 font-size-sm">all product details is here </span></h3>
+                    <span class="d-block text-muted pt-2 font-size-sm">all product details is here </span></h3>
                 </div>
                 <div class="card-toolbar">
                     <!--begin::Button-->
@@ -47,8 +48,8 @@
                             <div>
                                 <h6 class="fw-bold text-capitalize">{{ product.title }}</h6>
                                 <div class="d-flex flex-column gap-1">
-                                    <small>Stoke: {{ product.stock }}</small>
-                                    <small>Price: {{ product.buying_price }}</small>
+                                    <small>Varients: {{ product?.stocks?.length }}</small>
+                                    <small>Price: {{ priceLimit(product?.stocks) }}</small>
                                 </div>
                             </div>
                         </td>
@@ -116,7 +117,7 @@
                                     <label for="productname">Product Name</label>
                                     <input type="text"
                                            id="productname"
-                                           v-model="productName"
+                                           v-model="productDetails.productName"
                                            placeholder="Product Name"
                                            class="form-control">
                                 </div>
@@ -124,7 +125,7 @@
                                     <label for="dPrice">Default Price</label>
                                     <input type="text"
                                            id="dPrice"
-                                           v-model="defaultPrice"
+                                           v-model="productDetails.defaultPrice"
                                            placeholder="Default Price."
                                            class="form-control">
                                 </div>
@@ -132,7 +133,7 @@
                                     <label for="defaultStoke">Default Quantity</label>
                                     <input type="text"
                                            id="defaultStoke"
-                                           v-model="defaultStoke"
+                                           v-model="productDetails.defaultStoke"
                                            placeholder="Default Quantity..."
                                            class="form-control">
                                 </div>
@@ -141,11 +142,11 @@
                             <div class="form-row">
                                 <div class="col-md-6 form-group">
                                     <label>Category</label>
-                                    <TreeCategory v-model="categoryId"/>
+                                    <TreeCategory v-model="productDetails.categoryId"/>
                                 </div>
                                 <div class="col-md-6 form-group">
                                     <label>Brand</label>
-                                    <v-select v-model="brandId"
+                                    <v-select v-model="productDetails.brandId"
                                               class="form-control"
                                               :reduce="brand => brand.id" :options="brands"
                                               label="title" placeholder="Select Brand..."/>
@@ -154,7 +155,7 @@
 
                             <div class="form-group">
                                 <label for="description">Description</label>
-                                <textarea v-model="description"
+                                <textarea v-model="productDetails.description"
                                           id="description" cols="30" rows="4"
                                           class="form-control"></textarea>
                             </div>
@@ -162,7 +163,7 @@
 
                             <div class="form-group">
                                 <label>Full Details</label>
-                                <SummernoteEditor v-model="details"/>
+                                <SummernoteEditor v-model="productDetails.details"/>
                             </div>
                         </form>
                     </div>
@@ -194,15 +195,17 @@ export default {
             brands: [],
 
             // add product information.
-            productName: null,
-            defaultPrice: null,
-            defaultStoke: null,
-            description: null,
-            details: null,
-            categoryId: null,
-            brandId: null,
+            productDetails:{
+                productName: null,
+                defaultPrice: null,
+                defaultStoke: null,
+                description: null,
+                details: null,
+                categoryId: null,
+                brandId: null,
+            },
 
-            loading:false,
+            isLoading:false,
         }
     },
     methods: {
@@ -218,8 +221,7 @@ export default {
                         icon: 'warning',
                         title: err.response.statusText
                     })
-                })
-                .finally(() => this.loading = false);
+                }).finally(() => this.isLoading = false);
 
         },
         showSingleProduct(id) {
@@ -234,8 +236,7 @@ export default {
                         icon: 'error',
                         title: err.response.statusText
                     })
-                })
-                .finally(() => this.loading = false);
+                }).finally(() => this.isLoading = false);
 
         },
         deleteProduct(id) {
@@ -264,8 +265,7 @@ export default {
                                 icon: 'error',
                                 title: err.response.statusText
                             })
-                        })
-                        .finally(() => this.loading = false);
+                        }).finally(() => this.isLoading = false);
                 }
             }).catch(() => {
                 Swal.fire({
@@ -275,21 +275,33 @@ export default {
                 this.$router.push({name: 'ManageEmployee'});
             })
         },
+        priceLimit(stocks){
+            if(stocks?.length > 0){
+                const freestPrice = stocks?.[0]?.price
+                const lastPrice = stocks?.[stocks?.length - 1]?.price
+                return freestPrice > lastPrice ? lastPrice+'$'+'   -    '+freestPrice+"$" : freestPrice+"$"+'-'+lastPrice+"$"
+            }
+        },
 
 
         saveProductDetails(){
+            this.isLoading = true
+            // const formData = new FormData();
+            // formData.append(`name`, this.productName);
+            // formData.append(`defaultPrice`, this.defaultPrice);
+            // formData.append(`defaultQty`, this.defaultStoke);
+            // formData.append(`categoryId`, this.categoryId);
+            // formData.append(`brandId`, this.brandId);
+            // formData.append(`description`, this.description);
+            // formData.append(`details`, this.details);
+            // formData.append(`stock`,  this.defaultStoke);
+            // const data = {
+            //     stock:this.defaultStoke,
+            //     details:
+            // }
 
-            this.loading = true
-            const formData = new FormData();
-            formData.append(`name`, this.productName);
-            formData.append(`defaultPrice`, this.defaultPrice);
-            formData.append(`defaultQty`, this.defaultStoke);
-            formData.append(`categoryId`, this.categoryId);
-            formData.append(`brandId`, this.brandId);
-            formData.append(`description`, this.description);
-            formData.append(`details`, this.details);
-            formData.append(`stock`,  this.defaultStoke);
-            this.$axios.post('api/save-product-details', formData)
+
+            this.$axios.post('api/save-product-details', this.productDetails)
             .then(res => {
                 Toast.fire({
                     icon: 'success',
@@ -303,8 +315,7 @@ export default {
                     icon: 'error',
                     title: err.response.data.message
                 })
-            })
-                .finally(() => this.loading = false);
+            }).finally(() => this.isLoading = false);
         },
 
 
@@ -320,7 +331,7 @@ export default {
                     icon: 'warning',
                     title: err.response.data.message
                 });
-            })
+            }).finally(() => this.isLoading = false);
         },
     },
     created() {

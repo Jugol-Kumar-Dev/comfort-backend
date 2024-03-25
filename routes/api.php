@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\BusinessSettingController;
 use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\CustomerController;
 use App\Http\Controllers\Api\DashboardController;
+use App\Http\Controllers\Api\EmailToolsController;
 use App\Http\Controllers\Api\EmployeeController;
 use App\Http\Controllers\Api\ExpenseController;
 use App\Http\Controllers\Api\MonthController;
@@ -53,12 +54,15 @@ Route::apiResource('employee',  EmployeeController::class);
 
 Route::apiResource('supplier',  SupplierController::class);
 
-Route::apiResource('category',  CategoryController::class);
+Route::apiResource('category',  CategoryController::class); //->only(['index', 'show', 'store', 'destroy']);
+Route::post('/category/update/{id}', [CategoryController::class, 'updateCategory']);
+
 Route::get("/navbar-categories", [CategoryController::class, 'navCategories']);
 
 Route::get("/home-categories", [CategoryController::class, 'homeCategories']);
 
 Route::apiResource('brand',     BrandController::class);
+Route::post('/brand/update/{id}', [BrandController::class, 'updateBrand']);
 
 Route::apiResource('product',   ProductController::class);
 Route::get('product-filter', [ProductController::class, 'filterProduct']);
@@ -91,7 +95,6 @@ Route::get('/all-month',                        [MonthController::class, 'index'
 Route::get('/employee-salary/{id}',             [MonthController::class, 'employeeSalary']);
 Route::get('/product-by-category-id/{id}',      [ProductController::class, 'productByCategory']);
 
-Route::post('/category/update', [CategoryController::class, 'updateCategory']);
 
 
 
@@ -129,6 +132,10 @@ Route::apiResource('/review', ReviewController::class);
 //question system routes
 Route::apiResource('/question', QuestionController::class);
 
+Route::get('/get-customers-emails', [EmailToolsController::class, 'index']);
+Route::post('/send-emails', [EmailToolsController::class, 'sendEmails']);
+Route::get('/get-all-campaign', [EmailToolsController::class, 'getCampaign']);
+Route::delete('/delete-campaign/{id}', [EmailToolsController::class, 'deleteCampaign']);
 
 Route::middleware('auth:sanctum')->group(function(){
     Route::get('user', function (Request $request){
@@ -150,8 +157,6 @@ Route::middleware('auth:sanctum')->group(function(){
 
     Route::get('/admin/areas', [OrderAreaController::class, 'index']);
     Route::post('/admin/areas-save', [OrderAreaController::class, 'store']);
-
-
 
     Route::get('logout', [CustomerController::class, 'logoutCustomer']);
 });

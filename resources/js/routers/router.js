@@ -270,6 +270,17 @@ const routes =[
         component: ()=>import("@/views/Question/Index.vue")
     },
 
+    // email tools
+    {
+        path:'/email-marketing',
+        name:'Email',
+        component: ()=>import("@/views/Email/Panel.vue")
+    },
+    {
+        path:'/manage-campaigns',
+        name:'ManageCampaigns',
+        component: ()=>import("@/views/Email/ManageCampaign.vue")
+    },
     // settings routes
     {
         path:'/setting',

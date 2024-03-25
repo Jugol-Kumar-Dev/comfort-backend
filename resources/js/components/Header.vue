@@ -11,10 +11,10 @@
                     <ul class="menu-nav">
                         <li
                             class="menu-item menu-item-open menu-item-here menu-item-submenu menu-item-rel menu-item-open menu-item-here menu-item-active">
-                            <a href="https://comfortwing.com" class="menu-link menu-toggle" target="_blank">
+                            <RouterLink :to="$APP_URL" class="menu-link menu-toggle" target="_blank">
                                 <span class="menu-text">Visit Website</span>
                                 <i class="menu-arrow"></i>
-                            </a>
+                            </RouterLink>
                         </li>
                     </ul>
                     <!--end::Header Nav-->

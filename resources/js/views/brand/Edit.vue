@@ -9,20 +9,20 @@
                 <div class="card-body">
                     <div class="form-group">
                         <label>Brand Name</label>
-                        <input type="text" class="form-control form-control-solid" v-model="from.name" placeholder="Enter employee name..."/>
-                        <small class="text-danger" v-if="errors.name">{{ errors.name[0]}}</small>
+                        <input type="text" class="form-control form-control-solid" v-model="from.title" placeholder="Enter employee name..."/>
+                        <small class="text-danger" v-if="errors.title">{{ errors.title[0]}}</small>
                     </div>
 
-                    <div class="form-group">
-                        <label for="exampleTextarea">Category Description</label>
-                        <textarea id="exampleTextarea" class="form-control form-control-solid" v-model="from.description" rows="3"></textarea>
-                    </div>
+<!--                    <div class="form-group">-->
+<!--                        <label for="exampleTextarea">Category Description</label>-->
+<!--                        <textarea id="exampleTextarea" class="form-control form-control-solid" v-model="from.description" rows="3"></textarea>-->
+<!--                    </div>-->
 
                     <div class="form-group">
                         <label>Photo</label>
                         <input type="file" class="form-control"  @change="uploadFile">
                     </div>
-                    <img :src="from.photo" alt="" style="width: 180px;height: 120px;">
+                    <img :src="from.photo?.startsWith('upload') ? '/storage/'+from.photo: from.photo" alt="" class="object-fit-contain" style="width: 180px;height: 120px;">
                 </div>
                 <div class="card-footer">
                     <button type="submit" class="btn btn-primary mr-2">Submit</button>
@@ -42,11 +42,12 @@ export default {
     data(){
         return{
             from: {
-                name: '',
-                description: '',
+                id:'',
+                title: '',
                 photo:'',
             },
             errors:{},
+            file:'',
         }
     },
     methods: {
@@ -57,10 +58,20 @@ export default {
                 this.from.photo = event.target.result
             }
             reader.readAsDataURL(File);
+            this.file = File
         },
         updateCategory(){
             let id = this.$route.params.id;
-            axios.patch('/api/category/'+id, this.from)
+
+
+            let formData = new FormData;
+            formData.append('id', this.from.id);
+            formData.append('image', this.file);
+            formData.append('title', this.from.title)
+
+
+
+            this.$axios.post('/api/brand/update/'+id, formData)
                 .then( res => {
                     this.from= '';
                     this.errors = '';
@@ -68,7 +79,7 @@ export default {
                         icon: 'success',
                         title: res.data.message
                     })
-                    this.$router.push({name:'ManageCategory'});
+                    this.$router.push({name:'ManageBrand'});
                 })
                 .catch(err => {
                     this.errors = err.response.data.errors;
@@ -89,7 +100,7 @@ export default {
     created() {
         this.isLogined();
         let id = this.$route.params.id;
-        axios.get('/api/category/'+id)
+        this.$axios.get('/api/brand/'+id)
         .then(res => {
             this.from = res.data;
         })

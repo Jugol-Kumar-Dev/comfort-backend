@@ -13,12 +13,39 @@ class CategoryController extends Controller
 {
     public function index()
     {
-        $categories = Category::with(['childrenRecursive', 'parentCategory'])
-//            ->where('parent_id', 0)
+        $resCats = [];
+        if(request()->has('recursive')){
+            $resCats = Category::query()
+                ->with(['childrenRecursive'])
+                ->whereNull('parent_id')
+                ->select('id', 'name');
+            $resCats = $this->makeRecursive($resCats->get());
+        }else{
+            $resCats = Category::query()
+                ->with(['parent'])
                 ->latest()
-            ->get();
-        return response()->json($categories);
+                ->paginate(10)
+                ->withQueryString();
+        }
+
+        return response()->json($resCats);
     }
+
+
+    protected function makeRecursive($categories, $label = 0): array
+    {
+        $result = [];
+        foreach ($categories as $category) {
+            $name = str_repeat('-', $label) .''. $category['name'];
+            $result[] = ['id' => $category['id'], 'name' => $name];
+            if (!empty($category->childrenRecursive)) {
+                $result = array_merge($result, $this->makeRecursive($category->childrenRecursive, $label + 1));
+            }
+        }
+        return $result;
+
+    }
+
 
     public function store(Request $request)
     {
@@ -30,20 +57,17 @@ class CategoryController extends Controller
 
         if (\Illuminate\Support\Facades\Request::hasFile('image')){
             $file =  \Illuminate\Support\Facades\Request::file('image');
-            $file->storeAs('uploads', [
-                'disk' => 'public'
-            ]);
-//            $icon = $file->store('/category');
-
-//            $icon = $file->move(public_path('/category'), 'category'.rand(1, 9999).".".$file->getClientOriginalExtension());
+            $icon = $file->store('/uploads');
         }
 
+        $parentId = $request->input('parent') != 'null' ? $request->input('parent') : NULL;
 
         $data = $request->all();
-        $data['parent_id'] = $request->integer('parent') ?? 0;
+        $data['parent_id'] =  $parentId;
         $data['slug'] = Str::slug($request->name);
         $data['photo'] = $icon ??  NULL;
         $data['details'] = $request->details ??  NULL;
+        $data['icon'] = $request->input('icon');
         Category::create($data);
         return response()->json(['message' => 'Category save successfully done.'], 200);
     }
@@ -53,30 +77,6 @@ class CategoryController extends Controller
         return response()->json($category);
     }
 
-    public function update(Request $request, Category $category)
-    {
-
-        return $request;
-        if (\Illuminate\Support\Facades\Request::hasFile('photo')){
-            $file =  \Illuminate\Support\Facades\Request::file('photo');
-            $fileName = time() . '_' . $file->getClientOriginalName();
-            $icon = $file->storeAs('category', $fileName, [
-                'disk' => 'public'
-            ]);
-        }
-
-        return $icon;
-
-
-        $data = $request->all();
-        $data['parent_id'] = $request->integer('parent') ?? 0;
-        $data['slug'] = Str::slug($request->name);
-        $data['photo'] = $icon ??  NULL;
-        $data['details'] = $request->details ??  NULL;
-        $category->update($data);
-        return response()->json(['message' => 'Category update successfully done.'], 200);
-
-    }
 
     public function destroy(Category $category)
     {
@@ -85,38 +85,37 @@ class CategoryController extends Controller
     }
 
 
-    public function updateCategory(Request $request){
-        $category = Category::find($request->id);
+    public function updateCategory(Request $request, $id){
 
         $this->validate($request, [
-            'name' => 'required|max:30|min:1|unique:categories,name,'.$category->id,
-            'description' => 'max:100'
+            'name' => 'required|max:30|min:1|unique:categories,name,' .$request->id,
+            'photo' => 'nullable'
         ]);
 
 
-        if (\Illuminate\Support\Facades\Request::hasFile('photo')){
-            $file =  \Illuminate\Support\Facades\Request::file('photo');
-            $fileName = time() . '_' . $file->getClientOriginalName();
-            $icon = $file->storeAs('category', $fileName, [
-                'disk' => 'public'
-            ]);
+        $category = Category::findOrFail($id);
+        $data = $request->all();
+
+        if (\Illuminate\Support\Facades\Request::hasFile('image')){
+            $file =  \Illuminate\Support\Facades\Request::file('image');
+            $icon = $file->store('/uploads');
+            $data['photo'] = $icon;
         }
 
-        $data = $request->all();
-        $data['parent_id'] = $request->integer('parent') ?? 0;
+        $data['parent_id'] = $request->input('parent') != 'undefined' ? $request->input('parent') : NULL;
         $data['slug'] = Str::slug($request->name);
-        $data['photo'] = $icon ??  NULL;
-        $data['details'] = $request->details ??  NULL;
+        $data['details'] = $request->details != null ? $request->details :  NULL;
         $category->update($data);
-
         return response()->json(['message' => 'Category update successfully done.'], 200);
+
     }
 
 
 
     public function navCategories(){
 
-        $ids = collect(json_decode(get_setting('navCats')))->pluck('id');
+        $ids = collect(json_decode(get_setting('navCats')));
+
         $categories = Category::query()->with(['childrenRecursive'])->whereIn('id', $ids)->get();
 
 
@@ -128,8 +127,8 @@ class CategoryController extends Controller
 
     public function homeCategories()
     {
-        $categories = collect(json_decode(get_setting('navCats')))->pluck('id');
-        $products = Category::query()->with(['products', 'products.images', 'products.stocks'])->whereIn('id', $categories)->get();
+        $categories = collect(json_decode(get_setting('homeCats')));
+        $products = Category::query()->with(['products', 'childrenRecursive', 'products.images', 'products.stocks'])->whereIn('id', $categories)->get();
 
         $products->each(function ($product){
             $product->products->each(function($product) {

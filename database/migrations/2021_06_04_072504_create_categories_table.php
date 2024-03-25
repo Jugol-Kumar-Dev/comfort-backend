@@ -15,10 +15,11 @@ class CreateCategoriesTable extends Migration
     {
         Schema::create('categories', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('parent_id')->default(0)->index();
+            $table->foreignId('parent_id')->nullable()->constrained('categories')->cascadeOnUpdate()->cascadeOnDelete();
             $table->string('name');
             $table->string('slug')->index();
             $table->string('photo')->nullable();
+            $table->mediumText('icon')->nullable();
             $table->mediumText('description')->nullable();
             $table->longText('details')->nullable();
             $table->enum('status', ['active', 'inactive'])->default('active');

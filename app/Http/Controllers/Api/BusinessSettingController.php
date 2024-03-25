@@ -34,6 +34,8 @@ class BusinessSettingController extends Controller
     public function updateSetting()
     {
 
+//        return Request::all();
+
         foreach (Request::all() as $type => $value){
             $business_settings = BusinessSetting::where('type', $type)->first();
             if($business_settings != null) {

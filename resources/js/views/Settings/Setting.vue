@@ -8,13 +8,6 @@
                         Home Page Setting
                     </div>
                 </div>
-
-<!--                <div class="card cursor-pointer" :class="{ 'bg-primary text-white fw-bolder': currentTab === 'variants' }"-->
-<!--                    @click="setActiveTab('variants')">-->
-<!--                    <div class="card-body p-4">-->
-<!--                        Product Variants-->
-<!--                    </div>-->
-<!--                </div>-->
             </div>
             <div class="col-md-9">
                 <div class="card" v-if="currentTab === 'details'">
@@ -25,11 +18,11 @@
                         <div class="form-row">
                             <div class="col-md form-group">
                                 <label>Nav Bar Categories</label>
-                                <TreeSelect v-model="settings.navCats"/>
+                                <TreeCategory v-model="settings.navCats" multiple/>
                             </div>
                             <div class="col-md form-group">
                                 <label>Home Cats</label>
-                                <TreeSelect v-model="settings.homeCats"/>
+                                <TreeCategory v-model="settings.homeCats" multiple/>
                             </div>
                         </div>
                         <button class="btn btn-primary fw-bold" @click="saveSetting">Save Setting</button>
@@ -45,6 +38,7 @@
 import { onMounted, ref } from "vue";
 import useApi from "@/composables/useApi.js"
 import TreeSelect from "@/components/TreeSelect.vue";
+import TreeCategory from "@/components/TreeCategory.vue";
 
 const { sendRequest } = useApi();
 
@@ -60,6 +54,11 @@ const saveSetting = () =>{
         method: "POST",
         data:settings.value
     })
+
+    Toast.fire({
+        icon: 'success',
+        title: "Setting Update Success..."
+    });
 }
 
 const getSettings = async()=>{
@@ -67,23 +66,7 @@ const getSettings = async()=>{
     settings.value = data?.bSettings
 }
 
-
-
-const categories = ref([]);
-onMounted(async () => {
-    let responseData;
-    responseData = await sendRequest({
-        method: 'get',
-        url: '/api/category',
-    });
-
-    Toast.fire({
-        icon: 'success',
-        title: "Setting Update Success..."
-    });
-    categories.value = responseData;
-    getSettings();
-});
+onMounted(async () => await getSettings())
 
 
 const currentTab = ref('details')

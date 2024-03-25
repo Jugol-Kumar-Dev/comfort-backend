@@ -40,6 +40,9 @@ class ProductController extends Controller
             ->with(['images:id,product_id,image', 'stocks:id,product_id,varient,price', 'category:id,name', 'brand:id,title'])
             ->withCount('orderDetails')
             ->orderByDesc('order_details_count')
+            ->when($request->input('category'), function ($query, $search){
+                $query->whereIn('category_id', [$search]);
+            })
             ->when($title, function ($query, $title) {
                 return $query->where('title', 'like', '%' . $title . '%');
             })
@@ -50,7 +53,6 @@ class ProductController extends Controller
                       $price_from = $vp[0];
                       $price_to = $vp[1];
                       $variant = $vp[2];
-
                       $q->when($price_from, function ($query, $price_from) {
                           return $query->where('price', '>=', intval($price_from));
                       })->when($price_to, function ($query, $price_to) {
@@ -82,6 +84,10 @@ class ProductController extends Controller
         $data = $request->all();
         $data['slug'] = Str::slug($request->title);
         $data['photo'] = 'storage/productImage/' . $fileName;
+
+
+        return $data;
+
         $product = Product::create($data);
         $product->images()->createMany($images);
 
@@ -154,13 +160,14 @@ class ProductController extends Controller
     {
 
         $product->update([
-            'title' => $request->name,
-            'buying_price ' => $request->defaultPrice,
+            'title' => $request->productName,
+            'price' => $request->defaultPrice,
             'description' => $request->description,
+            'discount' => 0,
             'details' => $request->details,
-            'stock' => $request->defaultQty,
+            'stock' => $request->integer('defaultStoke') ?? 0,
             'category_id' => $request->categoryId,
-            'brand_id' => $request->brandId,
+            'brand_id' => $request->integer('brandId'),
             'user_id' => 1,
         ]);
 
@@ -182,9 +189,6 @@ class ProductController extends Controller
 
     public function checkVarient(Request $request)
     {
-
-
-
         $variationOptions = [];
         foreach ($request->variations as $key => $variation) {
             $variationMake = [];
@@ -344,26 +348,30 @@ class ProductController extends Controller
 
     public function saveProductDetails(Request $request)
     {
-        $request->validate([
-            'name' => 'required',
+        $data  = $request->validate([
+            'productName' => 'required',
             'categoryId' => 'required',
-            'brandId' => 'required',
-            'defaultQty' => 'required'
+            'brandId' => 'nullable',
+            'defaultStoke' => 'required',
+            'defaultPrice' => 'required'
         ]);
 
-
-        Product::query()->create([
-            'title' => $request->name,
-            'buying_price ' => $request->defaultPrice,
+        Product::create([
+            'title' => $request->productName,
+            'price' => $request->defaultPrice,
             'description' => $request->description,
+            'discount' => 0,
+            'sku' => getRandomStringRand(),
             'details' => $request->details,
-            'stock' => $request->integer('defaultQty') ?? 0,
+            'stock' => $request->integer('defaultStoke') ?? 0,
             'category_id' => $request->categoryId,
             'brand_id' => $request->integer('brandId'),
             'user_id' => 1,
         ]);
+
         return response()->json(['message' => 'Product updated successfully done.'], 200);
     }
+
 
     public function saveProductVariations(Request $request)
     {
@@ -376,6 +384,7 @@ class ProductController extends Controller
         $array =  collect($request->variations)->map(function($item){
             $item['product_id'] = 1;
             $item['varient'] = $item['title'];
+            $item['sku'] =  $item['sku'] ?? getRandomStringRand();
             $item['qty'] = $item['stock'];
             return $item;
         });
