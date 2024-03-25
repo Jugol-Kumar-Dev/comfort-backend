@@ -9,12 +9,11 @@
                 <div id="kt_header_menu" class="header-menu header-menu-mobile header-menu-layout-default">
                     <!--begin::Header Nav-->
                     <ul class="menu-nav">
-                        <li
-                            class="menu-item menu-item-open menu-item-here menu-item-submenu menu-item-rel menu-item-open menu-item-here menu-item-active">
-                            <RouterLink :to="$APP_URL" class="menu-link menu-toggle" target="_blank">
+                        <li class="menu-item menu-item-open menu-item-here menu-item-submenu menu-item-rel menu-item-open menu-item-here menu-item-active">
+                            <a :href="$FRONTEND_URL" class="menu-link menu-toggle" target="_blank">
                                 <span class="menu-text">Visit Website</span>
                                 <i class="menu-arrow"></i>
-                            </RouterLink>
+                            </a>
                         </li>
                     </ul>
                     <!--end::Header Nav-->

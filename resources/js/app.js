@@ -35,9 +35,11 @@ app.component('Uploader', Uploader);
 
 window.Toast = Toast
 window.User = User
-console.log(import.meta.env.VITE_APP_URL)
 
 app.config.globalProperties.$APP_URL = import.meta.env.VITE_APP_URL
+app.config.globalProperties.$FRONTEND_URL = import.meta.env.VITE_FONTEND_URL
+
+
 axios.defaults.headers.common['X-CSRF-TOKEN'] = document.querySelector('meta[name="csrf-token"]').content;
 const instance = axios.create({
     withCredentials: true,
