@@ -31,6 +31,7 @@ if (! function_exists('showPrices')) {
                 }
             }
         }
+
         $lowest_price = floatval($lowest_price);
         $highest_price = floatval($highest_price);
 

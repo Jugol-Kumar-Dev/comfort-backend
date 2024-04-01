@@ -51,12 +51,10 @@ class ReviewController extends Controller
         $totalRating  = Review::query()->where('product_id', $productId)->sum('rating');
         $reviews = Review::query()->where('product_id', $productId)->get();
 
-
-
         return response()->json([
             'reviews' => $reviews,
             'totalRating' => $totalRating,
-            'average' => $totalRating / $reviews->count(),
+            'average' => $reviews?->count() || $totalRating > 0 ? $totalRating / $reviews?->count() : 0,
         ], 200);
     }
 

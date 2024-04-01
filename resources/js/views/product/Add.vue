@@ -7,75 +7,99 @@
             </div>
             <div class="card-body">
                 <form @submit.prevent="saveProductDetails">
-                    <div class="form-row">
-                        <div class="col-md-4 form-group">
-                            <label for="productname">Product Name</label>
-                            <input type="text"
-                                   id="productname"
-                                   v-model="productDetails.productName"
-                                   placeholder="Product Name"
-                                   class="form-control">
-                            <small class="text-danger" v-if="errors.productName">{{ errors.productName[0]}}</small>
+                    <div class="row match-height">
+                        <div class="col-md-6">
+                            <div class="form-row">
+                                <div class="col-md-4 form-group">
+                                    <label for="productname">Product Name <span class="text-danger">*</span></label>
+                                    <input type="text"
+                                           id="productname"
+                                           v-model="productDetails.productName"
+                                           placeholder="Product Name"
+                                           class="form-control">
+                                    <small class="text-danger" v-if="errors.productName">{{ errors.productName[0]}}</small>
+                                </div>
+                                <div class="col-md-4 form-group">
+                                    <label for="dPrice">Default Price <span class="text-danger">*</span></label>
+                                    <input type="text"
+                                           id="dPrice"
+                                           v-model="productDetails.defaultPrice"
+                                           placeholder="Default Price."
+                                           class="form-control">
+                                    <small class="text-danger" v-if="errors.defaultPrice">{{ errors.defaultPrice[0]}}</small>
 
+                                </div>
+                                <div class="col-md-4 form-group">
+                                    <label for="defaultStoke">Default Quantity <span class="text-danger">*</span></label>
+                                    <input type="text"
+                                           id="defaultStoke"
+                                           v-model="productDetails.defaultStoke"
+                                           placeholder="Default Quantity..."
+                                           class="form-control">
+                                    <small class="text-danger" v-if="errors.defaultStoke">{{ errors.defaultStoke[0]}}</small>
+
+                                </div>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="col-md-6 form-group">
+                                    <label>Category <span class="text-danger">*</span></label>
+                                    <TreeCategory v-model="productDetails.categoryId"/>
+                                    <small class="text-danger" v-if="errors.categoryId">{{ errors.categoryId[0]}}</small>
+                                </div>
+                                <div class="col-md-6 form-group">
+                                    <label>Brand</label>
+                                    <v-select v-model="productDetails.brandId"
+                                              class="form-control"
+                                              :reduce="brand => brand.id" :options="brands"
+                                              label="title" placeholder="Select Brand..."/>
+                                    <small class="text-danger" v-if="errors.brandId">{{ errors.brandId[0]}}</small>
+
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="description">Description</label>
+                                <textarea v-model="productDetails.description"
+                                          id="description" cols="30" rows="4"
+                                          class="form-control"></textarea>
+                                <small class="text-danger" v-if="errors.description">{{ errors.description[0]}}</small>
+                            </div>
+
+                            <div class="form-group">
+                            <label>Full Details</label>
+                            <SummernoteEditor v-model="productDetails.details"/>
+                            <small class="text-danger" v-if="errors.details">{{ errors.details[0]}}</small>
                         </div>
-                        <div class="col-md-4 form-group">
-                            <label for="dPrice">Default Price</label>
-                            <input type="text"
-                                   id="dPrice"
-                                   v-model="productDetails.defaultPrice"
-                                   placeholder="Default Price."
-                                   class="form-control">
-                            <small class="text-danger" v-if="errors.defaultPrice">{{ errors.defaultPrice[0]}}</small>
-
                         </div>
-                        <div class="col-md-4 form-group">
-                            <label for="defaultStoke">Default Quantity</label>
-                            <input type="text"
-                                   id="defaultStoke"
-                                   v-model="productDetails.defaultStoke"
-                                   placeholder="Default Quantity..."
-                                   class="form-control">
-                            <small class="text-danger" v-if="errors.defaultStoke">{{ errors.defaultStoke[0]}}</small>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="description">Warranty & Support</label>
+                                <textarea v-model="productDetails.warranty"
+                                          id="description" cols="30" rows="4"
+                                          class="form-control"></textarea>
+                                <small class="text-danger" v-if="errors.warranty">{{ errors.warranty[0]}}</small>
+                            </div>
 
+                            <div class="form-group">
+                                <label>Features & Benefits</label>
+                                <SummernoteEditor v-model="productDetails.features"/>
+                                <small class="text-danger" v-if="errors.features">{{ errors.features[0]}}</small>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="description">Video Iframe Link</label>
+                                <textarea v-model="productDetails.video_url"
+                                          id="description" cols="30" rows="6"
+                                          class="form-control"></textarea>
+                                <small class="text-danger" v-if="errors.video_url">{{ errors.video_url[0]}}</small>
+                            </div>
                         </div>
                     </div>
-
-                    <div class="form-row">
-                        <div class="col-md-6 form-group">
-                            <label>Category</label>
-                            <TreeCategory v-model="productDetails.categoryId"/>
-                            <small class="text-danger" v-if="errors.categoryId">{{ errors.categoryId[0]}}</small>
-                        </div>
-                        <div class="col-md-6 form-group">
-                            <label>Brand</label>
-                            <v-select v-model="productDetails.brandId"
-                                      class="form-control"
-                                      :reduce="brand => brand.id" :options="brands"
-                                      label="title" placeholder="Select Brand..."/>
-                            <small class="text-danger" v-if="errors.brandId">{{ errors.brandId[0]}}</small>
-
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="description">Description</label>
-                        <textarea v-model="productDetails.description"
-                                  id="description" cols="30" rows="4"
-                                  class="form-control"></textarea>
-                        <small class="text-danger" v-if="errors.description">{{ errors.description[0]}}</small>
-                    </div>
-
-
-                    <div class="form-group">
-                        <label>Full Details</label>
-                        <SummernoteEditor v-model="productDetails.details"/>
-                        <small class="text-danger" v-if="errors.details">{{ errors.details[0]}}</small>
-                    </div>
-
                     <div class="d-flex gap-1">
                         <RequestLoading :isShow="isLoading"/>
-                        <button class="btn btn-sm btn-primary" @click="saveProductDetails">Save</button>
-                        <button class="btn btn-sm btn-danger" ref="Close" data-dismiss="modal" aria-label="Close">Cancel</button>
+                        <button v-if="!isLoading" class="btn btn-sm btn-primary" @click="saveProductDetails">Save</button>
+                        <button v-if="!isLoading" class="btn btn-sm btn-danger" ref="Close" data-dismiss="modal" aria-label="Close">Cancel</button>
                     </div>
                 </form>
             </div>
@@ -109,6 +133,9 @@ export default {
                 details: null,
                 categoryId: null,
                 brandId: null,
+                warranty:null,
+                features:null,
+                video_url:null
             },
             errors:{},
         }

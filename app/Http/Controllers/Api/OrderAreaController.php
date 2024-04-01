@@ -121,13 +121,14 @@ class OrderAreaController extends Controller
 
         $data = Request::validate([
             'title' => 'required',
-            'email' => ['required', 'email'],
-            'phone' => ['required'],
+//            'email' => ['required', 'email'],
+//            'phone' => ['required'],
             'area' => 'required',
             'address' => ['required']
         ]);
 
-        $data['order_area_id'] = Request::input('area'); //.",".Request::input('state')
+        $data['address'] = Request::input('address').",".Request::input('state').",".Request::input('zip_code');;
+        $data['order_area_id'] = Request::input('area');
         $data['user_id'] = Request::input('user_id');
         $data['set_default'] = filled(Request::input('isPrimary'));
 

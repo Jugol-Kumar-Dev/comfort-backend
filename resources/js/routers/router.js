@@ -281,11 +281,37 @@ const routes =[
         name:'ManageCampaigns',
         component: ()=>import("@/views/Email/ManageCampaign.vue")
     },
+    // page management
+    {
+        path:'/pages',
+        name:'Pages',
+        component: ()=>import("@/views/Pages/Index.vue")
+    },
+    {
+        path:'/pages/create',
+        name:'PageCreate',
+        component: ()=>import("@/views/Pages/Create.vue")
+    },
+
     // settings routes
     {
         path:'/setting',
         name:'Setting',
         component: ()=>import("@/views/Settings/Setting.vue")
+    },
+    // footer setting
+
+    {
+        path:'/setting/footer-setting',
+        name:'FooterSetting',
+        component: ()=>import("@/views/Settings/FooterSetting.vue")
+    },
+    // sliders management
+
+    {
+        path:'/sliders',
+        name:'Sliders',
+        component: ()=>import("@/views/Slider/Index.vue")
     },
 
     //emp routes

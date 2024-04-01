@@ -14,11 +14,14 @@ use App\Http\Controllers\Api\ExpenseController;
 use App\Http\Controllers\Api\MonthController;
 use App\Http\Controllers\Api\OrderAreaController;
 use App\Http\Controllers\Api\OrderController;
+use App\Http\Controllers\Api\PageController;
 use App\Http\Controllers\Api\PosController;
 use App\Http\Controllers\Api\ProductController;
 use App\Http\Controllers\Api\QuestionController;
 use App\Http\Controllers\Api\ReviewController;
 use App\Http\Controllers\Api\SalaryController;
+use App\Http\Controllers\Api\SliderController;
+use App\Http\Controllers\Api\StripeController;
 use App\Http\Controllers\Api\SupplierController;
 use App\Http\Controllers\Api\VariationController;
 use Illuminate\Http\Request;
@@ -58,6 +61,7 @@ Route::apiResource('category',  CategoryController::class); //->only(['index', '
 Route::post('/category/update/{id}', [CategoryController::class, 'updateCategory']);
 
 Route::get("/navbar-categories", [CategoryController::class, 'navCategories']);
+Route::get("/navbar-pages", [PageController::class, 'navPages']);
 
 Route::get("/home-categories", [CategoryController::class, 'homeCategories']);
 
@@ -72,6 +76,10 @@ Route::apiResource('expense',   ExpenseController::class);
 Route::apiResource('salary',    SalaryController::class);
 
 Route::apiResource('customer',  CustomerController::class);
+//Route::post('/update-customer/${id}',  [CustomerController::class, 'update']);
+
+Route::post('/customer/profile-update', [CustomerController::class, 'updateProfile']);
+Route::post('/customer/update-password', [CustomerController::class, 'updatePassword']);
 
 Route::apiResource('pos',       PosController::class);
 
@@ -121,6 +129,7 @@ Route::post("/admin/save-setting", [BusinessSettingController::class, 'updateSet
 Route::get("/admin/get-setting", [BusinessSettingController::class, 'index']);
 
 Route::post('login', [CustomerController::class, 'loginCustomer']);
+Route::post('register', [CustomerController::class, 'store']);
 
 
 Route::get('/all-areas', [OrderAreaController::class, 'getAreas']);
@@ -137,12 +146,24 @@ Route::post('/send-emails', [EmailToolsController::class, 'sendEmails']);
 Route::get('/get-all-campaign', [EmailToolsController::class, 'getCampaign']);
 Route::delete('/delete-campaign/{id}', [EmailToolsController::class, 'deleteCampaign']);
 
+// page management
+Route::resource('pages', PageController::class);
+Route::post('/pages/update/{id}', [PageController::class, 'updatePage'])->name('pages.updatePage');
+
+// slider management
+Route::resource('/sliders', SliderController::class);
+
+
+// get settings for frontend
+Route::get('/get-footer-settings', [BusinessSettingController::class, 'getFooterSettings']);
+
 Route::middleware('auth:sanctum')->group(function(){
     Route::get('user', function (Request $request){
         return $request->user();
     });
 
     Route::apiResource('address', AddressController::class);
+
     Route::post("save-order", [OrderController::class, 'store']);
     Route::get("my-orders", [OrderController::class, 'index']);
     Route::get('auth-data',  [ProductController::class, 'variationsProducts']);
@@ -162,13 +183,10 @@ Route::middleware('auth:sanctum')->group(function(){
 });
 
 
-Route::post('/upload-single',function(Request $request){
-    return $request;
-    $files = $request->image;
-    $files->store('single');
-    return response(['status'=>'success'],200);
-});
-
+Route::post('/checkout', [StripeController::class, 'checkout'])->name('checkout');
+Route::post('/verify', [StripeController::class, 'verify'])->name('verify');
+Route::get('/success', [StripeController::class, 'index'])->name('success');
+Route::get('/cancel', [StripeController::class, 'cancel'])->name('cancel');
 
 
 Route::post('save/emp', [EmployeeController::class, 'saveEmp']);

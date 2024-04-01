@@ -8,6 +8,20 @@
                         Home Page Setting
                     </div>
                 </div>
+
+                <div class="card cursor-pointer" :class="{ 'bg-primary text-white fw-bolder': currentTab === 'headerPages' }"
+                     @click="setActiveTab('headerPages')">
+                    <div class="card-body p-4">
+                        Header menu
+                    </div>
+                </div>
+
+                <RouterLink to="/setting/footer-setting" class="card cursor-pointer"
+                     @click="setActiveTab('details')">
+                    <div class="card-body p-4">
+                        Footer Setup
+                    </div>
+                </RouterLink>
             </div>
             <div class="col-md-9">
                 <div class="card" v-if="currentTab === 'details'">
@@ -28,6 +42,23 @@
                         <button class="btn btn-primary fw-bold" @click="saveSetting">Save Setting</button>
                     </div>
                 </div>
+                <div class="card" v-if="currentTab === 'headerPages'">
+                    <div class="card-header d-flex gap-2">
+                        <h3 class="card-title m-0">Header Menu Setup</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-row">
+                            <v-select
+                                v-model="settings.headerPages"
+                                :options="pages" multiple
+                                      class="form-control h-auto"
+                                      :reduce="page => page.id"
+                                      label="title"
+                                      placeholder="Select Page..."/>
+                        </div>
+                        <button class="btn btn-primary fw-bold" @click="saveSetting">Save Setting</button>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -35,17 +66,19 @@
 </template>
 
 <script setup>
-import { onMounted, ref } from "vue";
+import {onMounted, ref} from "vue";
 import useApi from "@/composables/useApi.js"
-import TreeSelect from "@/components/TreeSelect.vue";
 import TreeCategory from "@/components/TreeCategory.vue";
 
 const { sendRequest } = useApi();
 
 const settings = ref({
     navCats:[],
-    homeCats:[]
+    homeCats:[],
+    headerPages:[]
 })
+
+const pages = ref([])
 
 
 const saveSetting = () =>{
@@ -65,8 +98,14 @@ const getSettings = async()=>{
     const data = await sendRequest("/api/admin/get-setting");
     settings.value = data?.bSettings
 }
+const getPages = async () => {
+    pages.value = await sendRequest('api/pages')
+}
 
-onMounted(async () => await getSettings())
+onMounted(async () =>{
+    await getSettings()
+    await getPages()
+})
 
 
 const currentTab = ref('details')

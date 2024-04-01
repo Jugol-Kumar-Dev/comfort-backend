@@ -19,6 +19,12 @@ class CreateProductsTable extends Migration
             $table->string('slug')->unique();
             $table->mediumText('description')->nullable();
             $table->longText('details')->nullable();
+
+            $table->mediumText('warranty')->nullable();
+            $table->longText('features')->nullable();
+            $table->longText('video_url')->nullable();
+
+
             $table->string('sku')->nullable();
             $table->integer('stock')->nullable();
             $table->foreignId('category_id')->constrained('categories')->onDelete('cascade')->onUpdate('cascade');

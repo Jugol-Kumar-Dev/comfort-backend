@@ -5,8 +5,11 @@
         <div v-else class="card card-custom">
             <div class="card-header flex-wrap py-5">
                 <div class="card-title">
-                    <h3 class="card-label">All Products
-                    <span class="d-block text-muted pt-2 font-size-sm">all product details is here </span></h3>
+                    <div v-if="!loading">
+                        <h3 class="card-label">All Products
+                        <span class="d-block text-muted pt-2 font-size-sm">all product details is here </span></h3>
+                    </div>
+                    <RequestLoading :isShow="loading" text="Loadin....."/>
                 </div>
                 <div class="card-toolbar">
                     <!--begin::Button-->
@@ -179,10 +182,12 @@ import SummernoteEditor from 'vue3-summernote-editor';
 import TreeCategory from "@/components/TreeCategory.vue";
 import ComponentLoader from "@/components/ComponentLoader.vue";
 import Pagination from "@/components/Pagination.vue";
+import RequestLoading from "@/components/RequestLoading.vue";
 
 export default {
     name: "Index",
     components:{
+        RequestLoading,
         Pagination,
         ComponentLoader,
         SummernoteEditor,
@@ -205,7 +210,7 @@ export default {
                 brandId: null,
             },
 
-            isLoading:false,
+            loading:false,
         }
     },
     methods: {
@@ -250,7 +255,6 @@ export default {
                 showCancelButton: true,
             }).then((result) => {
                 if (result.value) {
-
                     this.loading = true
                     this.$axios.delete('/api/product/' + id)
                         .then(res => {
@@ -265,7 +269,7 @@ export default {
                                 icon: 'error',
                                 title: err.response.statusText
                             })
-                        }).finally(() => this.isLoading = false);
+                        }).finally(() => this.loading = false);
                 }
             }).catch(() => {
                 Swal.fire({
@@ -285,7 +289,7 @@ export default {
 
 
         saveProductDetails(){
-            this.isLoading = true
+            this.loading = true
             // const formData = new FormData();
             // formData.append(`name`, this.productName);
             // formData.append(`defaultPrice`, this.defaultPrice);
@@ -315,12 +319,13 @@ export default {
                     icon: 'error',
                     title: err.response.data.message
                 })
-            }).finally(() => this.isLoading = false);
+            }).finally(() => this.loading = false);
         },
 
 
         // get all variations
         allBrands() {
+            this.loading = true;
             this.$axios.get('api/brand', this.from)
             .then(res => {
                 this.brands = res.data
@@ -331,7 +336,7 @@ export default {
                     icon: 'warning',
                     title: err.response.data.message
                 });
-            }).finally(() => this.isLoading = false);
+            }).finally(() => this.loading = false);
         },
     },
     created() {

@@ -16,7 +16,7 @@
                         <tr>
                             <th>Record ID</th>
                             <th>Title</th>
-                            <th>Category</th>
+                            <th>Variant</th>
                             <!-- <th>Supplier</th> -->
                             <th>Stoke Status</th>
                             <th>Unit price</th>
@@ -32,7 +32,7 @@
                                 <small class="fs-6">Sku: {{ product?.sku }}</small>
                             </div>
                         </td>
-                        <td>{{ product?.product?.category?.name }}</td>
+                        <td>{{ product?.varient }}</td>
                         <!-- <td>{{ product?.supplier?.name ?? '......' }}</td> -->
                         <td>
                             <span class="badge badge-success bg-success fw-bold text-white" v-if=" product.qty > 0">Available In Stoke</span>
@@ -97,12 +97,18 @@
                         <hr class="border broder-1">
 
                         <div>
-                            <label for="qty">Add Stoke Quantity</label>
-                            <input v-model="qty" class="form-control" placeholder="e.g Add more 500 pc"/>
+                            <label for="qty" class="m-0 p-0">Add Stoke Quantity</label>
+                            <input v-model="qty" id="qty" class="form-control" placeholder="e.g Add more 500 pc"/>
                         </div>
 
-                        <button class="btn btn-primary ms-auto mt-3" @click="updateStoke">
-                            Add To Stoke
+                        <div class="mt-2">
+                            <label for="price" class="m-0 p-0">Change Variant Price</label>
+                            <input v-model="price" id="price" class="form-control" placeholder="e.g Add more 500 pc"/>
+                        </div>
+
+                        <RequestLoading :is-show="loading"/>
+                        <button v-if="!loading" class="btn btn-primary ms-auto mt-3" @click="updateStoke">
+                            Update Variant
                         </button>
                     </div>
                 </div>
@@ -119,22 +125,26 @@ import useApi from "@/composables/useApi.js"
 import Pagination from "@/components/Pagination.vue"
 const user = User.userInfo();
 import ComponentLoader from "@/components/ComponentLoader.vue";
+import RequestLoading from "@/components/RequestLoading.vue";
 
 const products = ref([]);
 const {sendRequest, loading}= useApi();
 const stokeInfo = ref({})
 const qty = ref(null)
+const price = ref(null)
 
 const editStoke = (info)=>{
     $('#exampleModal').modal('show');
     stokeInfo.value = info;
+    price.value = info?.price;
 }
 
 const updateStoke = async () =>{
     const data = await sendRequest({
         method: 'put',
         data:{
-            qty: qty.value
+            qty: qty.value,
+            price: price.value
         },
         url: `/api/admin/update-stokes/${stokeInfo.value?.id}`,
         headers: {
@@ -143,6 +153,8 @@ const updateStoke = async () =>{
     })
 
     if(data?.message){
+        qty.value = null;
+        price.value = null;
         await getAllStokes();
         $('#exampleModal').modal('hide');
         Toast.fire({

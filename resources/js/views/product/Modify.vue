@@ -88,11 +88,34 @@
                                           class="form-control"></textarea>
                             </div>
 
-
                             <div class="form-group">
                                 <label>Full Details</label>
                                 <SummernoteEditor v-model="productDetails.details"/>
                             </div>
+
+                            <div class="form-group">
+                                <label for="description">Warranty & Support</label>
+                                <textarea v-model="productDetails.warranty"
+                                          id="description" cols="30" rows="4"
+                                          class="form-control"></textarea>
+                                <small class="text-danger" v-if="errors.warranty">{{ errors.warranty[0]}}</small>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Features & Benefits</label>
+                                <SummernoteEditor v-model="productDetails.features"/>
+                                <small class="text-danger" v-if="errors.features">{{ errors.features[0]}}</small>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="description">Video Iframe Link</label>
+                                <textarea v-model="productDetails.video_url"
+                                          id="description" cols="30" rows="6"
+                                          class="form-control"></textarea>
+                                <small class="text-danger" v-if="errors.video_url">{{ errors.video_url[0]}}</small>
+                            </div>
+
+
                         </form>
                     </div>
                 </div>
@@ -205,7 +228,11 @@
                 <div class="card" v-if="currentTab === 'images'">
                     <div class="card-body">
                         <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                            <h2 class="card-title m-0">Product Images</h2>
+                            <div class="d-flex flex-column gap-2">
+                                <h2 class="card-title m-0">Product Images</h2>
+                                <span class="text-danger w-50 mt-4">Please upload images in JPG, PNG, or GIF format with dimensions of 550 x 550 pixels. The maximum file size allowed is 500 KB.</span>
+                            </div>
+
                             <button class="btn btn-primary btn-sm" @click="saveImages">Save Images</button>
                         </div>
                         <div class="mu-container" :class="isInvalid?'mu-red-border':''">
@@ -350,6 +377,9 @@ export default {
                 details: null,
                 categoryId: null,
                 brandId: null,
+                warranty:null,
+                features:null,
+                video_url:null,
                 productImages:null
             },
 
@@ -370,6 +400,7 @@ export default {
             },
 
             brands: [],
+            errors:{},
 
             productImages:[],
 
@@ -691,7 +722,10 @@ export default {
                 this.productDetails.details = res.data?.details;
                 this.productDetails.categoryId = res.data?.category?.id;
                 this.productDetails.brandId = res.data?.brand?.id;
-                this.productDetails.productImages = res.data?.images
+                this.productDetails.warranty = res.data?.warranty;
+                this.productDetails.features = res.data?.features;
+                this.productDetails.video_url = res.data?.video_url;
+                this.productDetails.productImages = res.data?.images;
             })
             .catch(err => {
                 console.log(err)

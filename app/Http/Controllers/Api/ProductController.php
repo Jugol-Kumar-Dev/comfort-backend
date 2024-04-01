@@ -9,6 +9,7 @@ use App\Models\ProductImage;
 use App\Models\ProductStock;
 use App\Models\ProductVariant;
 use App\Models\ProductVariantPrice;
+use App\Models\Review;
 use App\Models\User;
 use App\Models\Variation;
 use Illuminate\Http\Request;
@@ -74,6 +75,7 @@ class ProductController extends Controller
         $file->storeAs('public/productImage/', $fileName);
 
         $images = [];
+
         foreach ($request->images as $singImage) {
             $imageName = time() . rand(0000, 9999) . '.' . $singImage->getClientOriginalExtension();
             $singImage->storeAs('public/productImages/', $imageName);
@@ -81,6 +83,7 @@ class ProductController extends Controller
                 'name' => 'storage/productImages/' . $imageName,
             ];
         }
+
         $data = $request->all();
         $data['slug'] = Str::slug($request->title);
         $data['photo'] = 'storage/productImage/' . $fileName;
@@ -103,13 +106,20 @@ class ProductController extends Controller
 
         $attributes = array_map(function($item){
             $item["option"] = Variation::select('name', 'id')->findOrFail($item["option"]);
-            $item["selectVariant"] = $item['tags'][0];
+            $item["selectVariant"] = $item['tags'] ? $item['tags'][0] : null;
             return $item;
         }, $varients ?? []);
 
-        $product->attributes = $attributes ?? [];
+        $totalRating  = Review::query()->where('product_id', $product->id)->sum('rating');
+        $reviews = Review::query()->where('product_id', $product->id)->get();
 
-        $product->showPrice = showPrices($product);
+        $product->totalRating = $reviews->count();
+        $product->avarageRating = ($reviews?->count() || $totalRating > 0) ? ($totalRating / $reviews?->count()) : 0;
+
+        $product->attributes = $attributes ?? [];
+        $product->showPrice = $product->stocks()->min('price').'$'.' - '.$product->stocks()->max('price').'$'; //showPrices($product);
+
+
         $product->currency = get_setting('currency');
         $product->currencySymble = get_setting('currency_symbol');
 
@@ -163,6 +173,9 @@ class ProductController extends Controller
             'title' => $request->productName,
             'price' => $request->defaultPrice,
             'description' => $request->description,
+            'warranty' => $request->warranty,
+            'features' => $request->features,
+            'video_url' => $request->video_url,
             'discount' => 0,
             'details' => $request->details,
             'stock' => $request->integer('defaultStoke') ?? 0,
@@ -360,6 +373,9 @@ class ProductController extends Controller
             'title' => $request->productName,
             'price' => $request->defaultPrice,
             'description' => $request->description,
+            'warranty' => $request->warranty,
+            'features' => $request->features,
+            'video_url' => $request->video_url,
             'discount' => 0,
             'sku' => getRandomStringRand(),
             'details' => $request->details,
@@ -478,8 +494,9 @@ class ProductController extends Controller
         $stoke = ProductStock::query()->findOrFail($id);
 
         $stoke->qty += $request->input("qty");
-        $stoke->update();
+        $stoke->price = $request->input('price');
 
+        $stoke->update();
         return response()->json(['message' => 'Product Stoke Added.....'], 200);
 
     }

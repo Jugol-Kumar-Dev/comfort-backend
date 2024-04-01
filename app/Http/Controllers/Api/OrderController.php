@@ -5,15 +5,12 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Address;
 use App\Models\Order;
-use App\Models\OrderDetails;
-use App\Models\Pos;
 use App\Models\Product;
 use App\Models\ProductStock;
 use Carbon\Carbon;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
 class OrderController extends Controller
@@ -36,7 +33,9 @@ class OrderController extends Controller
             $address = Address::with('orderArea')->findOrFail($request->addressId);
             $grandTotal = $address->orderArea->delivery_charge + $request->orderTotal;
 
+
             $order = Order::create([
+                'transaction_id' => getRandomStringRand(16),
                 'user_id' => $request->user()->id,
                 'address_id' => $request->input('addressId'),
                 'payment_method' => $request->input('paymentMethod'),
@@ -68,42 +67,27 @@ class OrderController extends Controller
                     }
                 }
             }
-
-//            return $orderDetails;
-
             $order->orderdetails()->createMany($orderDetails);
 
+            if( $request->input('paymentMethod') == 'stripe'){
+                $stripe = new StripeController();
 
-            return $order;
+                $session = $stripe->checkout($order, $orderDetails);
+                $order->transaction_id = $session->id;
+                $order->save();
 
-//            $posProducts = Pos::all();
-
-
-
-
-
-/*            foreach ($posProducts as $product){
-                $qtyProduct = Product::findORFail($product->product_id);
-                $qtyProduct->update([
-                    'stock' => $qtyProduct->stock - $product->quantity
-                ]);
-
-                $oProduct['order_id'] = $order->id;
-                $oProduct['product_id'] = $product->product_id;
-                $oProduct['product_title'] = $product->title;
-                $oProduct['product_quantity'] = $product->quantity;
-                $oProduct['product_price'] = $product->price;
-                $oProduct['sub_total'] = $product->sub_total;
-                $oProduct['product_image'] = $product->photo;
-
-                OrderDetails::create($oProduct);
+                return response()->json([
+                    'type' => 'stripe_payment',
+                    'message' =>'Order save successfully done.',
+                    'data' => $session->url,
+                ], 200);
+            }else{
+                return response()->json([
+                    'type' => 'cache_on_delivery',
+                    'message' =>'Order save successfully done.',
+                    'data' => $order,
+                ], 200);
             }
-            DB::table('pos')->delete();*/
-
-            return response()->json([
-                'message' =>'Order save successfully done.',
-                'data' => $order,
-            ], 200);
         }
 
 
@@ -126,7 +110,9 @@ class OrderController extends Controller
     }
     public function destroy(Order $order)
     {
-        //
+        $order->orderdetails()->delete();
+        $order->delete();
+        return response()->json("Order Deleted...", 200);
     }
 
 

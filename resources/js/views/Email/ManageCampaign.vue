@@ -79,11 +79,11 @@ const getAllCampaigns = async () => {
     batches.value = await sendRequest("api/get-all-campaign");
 }
 
-// setInterval(async function () {
-//     if(batches.value?.[0]?.progress < 100){
-//         await getAllCampaigns()
-//     }
-// }, 1000)
+setInterval(async function () {
+    if(batches.value?.[0]?.progress < 100){
+        await getAllCampaigns()
+    }
+}, 3000)
 
 onMounted(async () => {
     await getAllCampaigns()

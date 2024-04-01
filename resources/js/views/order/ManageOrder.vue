@@ -38,11 +38,11 @@
                             </td>
                             <td>{{ order.grand_total }} $</td>
                             <td class="text-center">
-                                <span class="badge bg-primary">{{ order?.order_status }}</span>
+                                <span class="badge bg-primary text-capitalize">{{ order?.order_status }}</span>
                             </td>
                             <td>{{ order?.order_type }}</td>
                             <td class="text-center">
-                                <span class="badge bg-info">
+                                <span class="badge bg-info text-capitalize">
                                     {{ order?.payment_status }}
                                 </span>
                             </td>
@@ -83,7 +83,7 @@
                                     </span>
                                 </a>
 
-                                <a href="javascript:;" @click="deleteCustomer(emp.id)" class="btn btn-sm btn-clean btn-icon"
+                                <button  @click="deleteOrder(order.id)" class="btn btn-sm btn-clean btn-icon"
                                     title="Delete">
                                     <span class="svg-icon svg-icon-md">
                                         <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
@@ -99,7 +99,7 @@
                                             </g>
                                         </svg>
                                     </span>
-                                </a>
+                                </button>
                             </td>
                         </tr>
                     </tbody>
@@ -260,7 +260,7 @@
 <script>
 import {ref} from "vue";
 import Pagination from "@/components/Pagination.vue";
-
+// import Swal from "sweetalert2";
 export default {
     name: "MangeOrder",
     components: {Pagination},
@@ -311,6 +311,36 @@ export default {
             this.orderDetails = info;
         },
 
+        deleteOrder(id){
+            Swal.fire({
+                title: 'Are You Sure!',
+                text: 'you watnt to delete this?',
+                icon:'warning',
+                confirmButtonColor: '#ddd',
+                cancelButtonColor: 'red',
+                confirmButtonText: 'Delete',
+                showCancelButton:true,
+            }).then((result) => {
+                if (result.value){
+                    this.$axios.delete('/api/order/'+id)
+                        .then(res => {
+                            Toast.fire({
+                                icon: 'success',
+                                title: res.data.message
+                            })
+                            this.allOrder();
+                        })
+                        .catch(err => {
+                            console.log(err.response.data)
+                        })
+                }
+            }).catch(() => {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'dont worry. your data is safe...'
+                })
+            })
+        },
         changeOrderStatus(event){
             this.$axios.get(`/api/change-order-status?status=${event.name}&id=${this.orderDetails?.id}&type=order`, {
                 headers: {

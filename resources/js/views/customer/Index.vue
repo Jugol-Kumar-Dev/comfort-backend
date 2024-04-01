@@ -4,7 +4,7 @@
             <div class="card-header flex-wrap py-5">
                 <div class="card-title">
                     <h3 class="card-label">All Customers
-                        <span class="d-block text-muted pt-2 font-size-sm">All customers details is here</span></h3>
+                    <span class="d-block text-muted pt-2 font-size-sm">All customers details is here</span></h3>
                 </div>
                 <div class="card-toolbar">
                     <!--begin::Button-->
@@ -41,14 +41,14 @@
                         <td>{{ i+1 }}</td>
                         <td>
                             <span class="symbol-label">
-                                 <img :src="`${emp.photo}`" alt="" class="rounded-circle" style="width: 50px; height: 50px;">
+                                 <img :src="`https://ui-avatars.com/api/?background=random&color=fff&name=${emp.email}&size=50`" alt="" class="rounded-circle" style="width: 50px; height: 50px;">
                             </span>
                         </td>
                         <td>{{ emp.email }}</td>
-                        <td>{{ emp.name }}</td>
+                        <td>{{ emp.full_name }}</td>
                         <td>{{ emp.phone }}</td>
                         <td>
-                            <router-link :to="{name:'EditEmployee', params:{id:emp.id} }" class="btn btn-sm btn-clean btn-icon" title="Edit details">
+                            <router-link :to="{name:'EditCustomer', params:{id:emp.id} }" class="btn btn-sm btn-clean btn-icon" title="Edit details">
 	                            <span class="svg-icon svg-icon-md">
 	                                <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="24px" height="24px" viewBox="0 0 24 24" version="1.1">
 	                                    <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
@@ -60,7 +60,7 @@
 	                            </span>
                             </router-link>
 
-                            <a href="javascript:;" @click="deleteCustomer(emp.id)" class="btn btn-sm btn-clean btn-icon" title="Delete">
+                            <a href="javascript:void(0);" @click="deleteCustomer(emp.id)" class="btn btn-sm btn-clean btn-icon" title="Delete">
 	                            <span class="svg-icon svg-icon-md">
 	                                <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="24px" height="24px" viewBox="0 0 24 24" version="1.1">
 	                                    <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
@@ -122,7 +122,7 @@ export default {
                 showCancelButton:true,
             }).then((result) => {
                 if (result.value){
-                    axios.delete('/api/customer/'+id)
+                    this.$axios.delete('/api/customer/'+id)
                         .then(res => {
                             Toast.fire({
                                 icon: 'success',
@@ -139,7 +139,7 @@ export default {
                     icon: 'success',
                     title: 'dont worry. your data is safe...'
                 })
-                this.$router.push({name:'ManageEmployee'});
+                // this.$router.push({name:'ManageEmployee'});
             })
         },
         isLogined(){
