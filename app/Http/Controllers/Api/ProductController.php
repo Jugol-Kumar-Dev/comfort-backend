@@ -446,7 +446,9 @@ class ProductController extends Controller
 
         $product = Product::findOrFail($request->input('productId'));
         $images = $request->file('files');
+
         $uploadedFiles = [];
+
         foreach ($images as $file) {
             $fileName = time() . '_' . $file->getClientOriginalName();
             $file->storeAs('uploads', $fileName, [
