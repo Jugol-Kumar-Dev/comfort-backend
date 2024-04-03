@@ -17,9 +17,9 @@
                                 </a>
                                 <!--end::Logo-->
                                 <span class="d-flex flex-column align-items-md-end opacity-70">
-																	<span>Cecilia Chapman, 711-2880 Nulla St, Mankato</span>
-																	<span>Mississippi 96522</span>
-																</span>
+                                    <span>Cecilia Chapman, 711-2880 Nulla St, Mankato</span>
+                                    <span>Mississippi 96522</span>
+                                </span>
                             </div>
                         </div>
                         <div class="border-bottom w-100"></div>

@@ -150,8 +150,8 @@ export default {
                         icon: 'success',
                         title: res.data.message
                     })
-                    // this.$refs.Close.click();
-                    this.allProducts();
+
+                    this.$router.push("/manage-product")
                 })
                 .catch(err => {
                     this.errors = err.response.data.errors;

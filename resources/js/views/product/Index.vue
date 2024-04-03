@@ -13,7 +13,7 @@
                 </div>
                 <div class="card-toolbar">
                     <!--begin::Button-->
-                    <button type="button" class="btn btn-primary font-weight-bolder"  data-toggle="modal"  data-target="#exampleModalLong">
+                    <RouterLink to="/add-product" type="button" class="btn btn-primary font-weight-bolder">
                         <span class="svg-icon svg-icon-md">
                             <!--begin::Svg Icon | path:assets/media/svg/icons/Design/Flatten.svg-->
                             <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="24px" height="24px" viewBox="0 0 24 24" version="1.1">
@@ -26,7 +26,7 @@
                             <!--end::Svg Icon-->
                         </span>
                         New Record
-                    </button>
+                    </RouterLink>
                     <!--end::Button-->
                 </div>
             </div>
@@ -51,8 +51,9 @@
                             <div>
                                 <h6 class="fw-bold text-capitalize">{{ product.title }}</h6>
                                 <div class="d-flex flex-column gap-1">
-                                    <small>Varients: {{ product?.stocks?.length }}</small>
-                                    <small>Price: {{ priceLimit(product?.stocks) }}</small>
+                                    <small>Variants: {{ product?.stocks?.length }}</small>
+                                    <small>Variant Price: {{ priceLimit(product?.stocks) }}</small>
+                                    <small>Default Price: {{ product?.price }} $</small>
                                 </div>
                             </div>
                         </td>

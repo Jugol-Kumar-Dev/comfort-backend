@@ -4,7 +4,7 @@
     <section>
 
         <ComponentLoader v-if="loading"/>
-        <div v-else class="row">
+        <div class="row">
             <div class="col-md-3 d-flex flex-column gap-2">
                 <div class="card cursor-pointer" :class="{'bg-primary text-white fw-bolder' : currentTab === 'details'}"
                      @click="setActiveTab('details')">
@@ -215,7 +215,7 @@
                                                v-model="variant_price.stock">
                                     </td>
                                     <td>
-                                        <input type="text" class="form-control" v-model="variant_price.sku">
+                                        <input type="text" class="form-control" v-model="variant_price.sku" placeholder="e.g Not Fillable, Auto Generated.">
                                     </td>
                                 </tr>
                                 </tbody>
@@ -451,8 +451,8 @@ export default {
             this.getCombn(tags).forEach(item => {
                 this.product_variant_prices.push({
                     title: item,
-                    price: 0,
-                    stock: 0
+                    price: this.productDetails.defaultPrice,
+                    stock: this.productDetails.defaultStoke
                 })
             })
         },
@@ -469,8 +469,6 @@ export default {
             }, []);
             return ans;
         },
-
-
 
         saveNewVarient(){
             this.loading = true

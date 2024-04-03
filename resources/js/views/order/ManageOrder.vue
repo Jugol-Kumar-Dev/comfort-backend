@@ -65,7 +65,7 @@
                                 </a>
 
                                 <!--                            {name:'ShowOrderDetails', params:{id:order.id} }-->
-                                <a :href="`http://localhost:5173/order-invoice/${order?.id}`" target="_blank"
+                                <a :href="`${$FRONTEND_URL}/order-invoice/${order?.id}`" target="_blank"
                                     class="btn btn-sm btn-clean btn-icon" title="Edit details">
                                     <span class="svg-icon svg-icon-md">
                                         <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
@@ -205,7 +205,7 @@
                                         </td>
                                         <td class="py-1">
                                             <span class="fw-bold">
-                                                {{ item?.stoke?.price * item?.quantity }} $
+                                                {{ parseInt(item?.stoke?.price) * parseInt(item?.quantity) }} $
                                             </span> <!-- {{ $showPrice(item.product.price * item.quantity) }} -->
                                         </td>
                                     </tr>

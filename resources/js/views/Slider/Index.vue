@@ -79,13 +79,13 @@ onMounted(async () => await getSliders());
 <template>
     <layout>
         <div class="content-body">
-            <div class="row match-height">
+            <div class="row">
                 <div class="col-md-8" >
                     <div class="card">
                         <div class="card-body">
                             <div class="d-flex align-items-center justify-content-between">
                                 <h4 class="card-title">Slider</h4>
-                                <button class="btn btn-sm btn-primary">Add Slider</button>
+<!--                                <button class="btn btn-sm btn-primary">Add Slider</button>-->
                             </div>
 
                             <div class="row d-flex align-items-center">

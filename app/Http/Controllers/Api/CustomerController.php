@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use Intervention\Image\Facades\Image;
 
@@ -74,7 +75,7 @@ class CustomerController extends Controller
 
             User::create([
                 'full_name' => $request->name,
-                'username' => $request->name,
+                'username' => Str::slug($request->name, '_'),
                 'email' => $request->email,
                 'phone' => $request->phone,
                 'position' => $request->position,
@@ -86,14 +87,16 @@ class CustomerController extends Controller
             return response()->json(['message' =>'Customer save without image'], 200);
         }
     }
-    public function show(Customer $customer)
+    public function show($id)
     {
+        $customer = User::findOrFail($id);
         return response()->json($customer);
     }
-    public function update(Request $request, Customer $customer)
+    public function update(Request $request, $id)
     {
+        $customer = User::findOrFail($id);
         $customer->update($request->all());
-        return response()->json(['message' =>'Customer update without image'], 200);
+        return response()->json(['message' =>'Customer update...'], 200);
     }
     public function destroy($id)
     {

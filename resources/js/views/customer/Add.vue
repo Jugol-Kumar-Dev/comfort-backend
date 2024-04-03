@@ -36,8 +36,11 @@
                     <img v-show="from.photo" class="preview-image" :src="from.photo" alt="">
                 </div>
                 <div class="card-footer">
-                    <button type="submit" class="btn btn-primary mr-2">Submit</button>
-                    <button type="reset" class="btn btn-secondary">Cancel</button>
+                    <RequestLoading :isShow="loading"/>
+                    <div v-if="!loading">
+                        <button type="submit" class="btn btn-primary mr-2">Submit</button>
+                        <button type="reset" class="btn btn-secondary">Cancel</button>
+                    </div>
                 </div>
             </form>
             <!--end::Form-->
@@ -48,8 +51,11 @@
 </template>
 
 <script>
+import RequestLoading from "@/components/RequestLoading.vue";
+
 export default {
     name: "Add",
+    components: {RequestLoading},
     data(){
         return{
             from: {
@@ -60,6 +66,7 @@ export default {
                 photo:null,
             },
             errors:{},
+            loading:false
         }
     },
     methods: {
@@ -72,6 +79,7 @@ export default {
             reader.readAsDataURL(File);
         },
         saveCustomer(){
+            this.loading = true;
             this.$axios.post('api/customer?fromAdmin', this.from)
             .then( res => {
                 this.from= '';
@@ -88,7 +96,7 @@ export default {
                     icon: 'warning',
                     title: err.response.statusText
                 })
-            })
+            }).finally(()=>this.loading = false)
         }
     },
 

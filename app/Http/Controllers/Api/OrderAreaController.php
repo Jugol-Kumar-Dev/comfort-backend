@@ -52,6 +52,7 @@ class OrderAreaController extends Controller
     public function store()
     {
         $data = Request::validate([
+            'id' => 'nullable',
             'area_name' => 'required',
             'area_code' => 'required',
             'delivery_charge' => 'required',
@@ -59,8 +60,7 @@ class OrderAreaController extends Controller
             'charge_condition_price' =>  'nullable'
         ]);
 
-        OrderArea::create($data);
-
+        OrderArea::query()->updateOrCreate(['id' => Request::input('id')], $data);
         return response()->json(['message' => 'New Area Adde...']);
     }
 

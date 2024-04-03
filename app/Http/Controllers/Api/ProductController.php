@@ -37,7 +37,7 @@ class ProductController extends Controller
 
 
         $products = Product::query()
-            ->select(['id', 'title', 'category_id', 'brand_id'])
+            ->select(['id', 'title', 'category_id', 'brand_id', 'price'])
             ->with(['images:id,product_id,image', 'stocks:id,product_id,varient,price', 'category:id,name', 'brand:id,title'])
             ->withCount('orderDetails')
             ->orderByDesc('order_details_count')
@@ -508,12 +508,12 @@ class ProductController extends Controller
     {
         $stokes = ProductStock::query()->with(['product.category', 'product.images'])->get();
         $stokes->each(function ($stock) {
-            $stock->product->images->each(function ($image) {
-                $image->url = Storage::url("uploads/$image->image");
-            });
+            if($stock->product->images && !empty($stock->product->images)){
+                $stock->product->images->each(function ($image) {
+                    $image->url = Storage::url("uploads/$image->image");
+                });
+            }
         });
-
-//        Cache::store('posProducts', )
 
         return response()->json($stokes, 200);
     }

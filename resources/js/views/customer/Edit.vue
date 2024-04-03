@@ -9,7 +9,7 @@
                 <div class="card-body">
                     <div class="form-group">
                         <label>Name</label>
-                        <input type="text" class="form-control form-control-solid" v-model="form.name" placeholder="Enter customer name..."/>
+                        <input type="text" class="form-control form-control-solid" v-model="form.full_name" placeholder="Enter customer name..."/>
 
                     </div>
                     <div class="form-group">
@@ -36,14 +36,15 @@
 <!--                    <img v-show="form.photo" class="preview-image" :src="`/${form.photo}`" alt="" style="width:120px; height:auto;">-->
                 </div>
                 <div class="card-footer">
-                    <button type="submit" class="btn btn-primary mr-2">Submit</button>
-                    <button type="reset" class="btn btn-secondary">Cancel</button>
+                    <RequestLoading :isShow="loading" text="updating..."/>
+                    <div v-if="!loading">
+                        <button type="submit" class="btn btn-primary mr-2">Submit</button>
+                        <button type="reset" class="btn btn-secondary">Cancel</button>
+                    </div>
                 </div>
             </form>
             <!--end::Form-->
         </div>
-
-
     </div>
 </template>
 
@@ -52,19 +53,21 @@
 import axios from 'axios'
 import { ref, onMounted } from 'vue';
 import { useRoute } from 'vue-router'
+import RequestLoading from "@/components/RequestLoading.vue";
+import ComponentLoader from "@/components/ComponentLoader.vue";
 
 const route = useRoute();
 
 const data = ref(null);
 
 const form = ref({
-    name: null,
+    full_name: null,
     email: null,
     phone: null,
     address: null,
     photo: null,
 });
-
+const loading = ref(false)
 const uploadFile = (event) => {
     let File = event.target.files[0];
 
@@ -82,6 +85,7 @@ const isLogined = () => {
 }
 
 const getCustomer = (id) => {
+    loading.value = true;
     axios.get(`/api/customer/${id}`)
         .then(response => {
             data.value = response.data;
@@ -93,11 +97,12 @@ const getCustomer = (id) => {
         })
         .catch(error => {
             console.error("Error fetching customer data:", error);
-        });
+        }).finally(()=> loading.value = false)
 }
 
 
 const updateCustomer = () => {
+    loading.value = true;
     axios.put(`/api/customer/${route?.params?.id}`, form.value)
         .then(res => {
             Toast.fire({
@@ -111,7 +116,7 @@ const updateCustomer = () => {
                 icon: 'warning',
                 title: err.response.statusText
             })
-        });
+        }).finally(()=> loading.value = false)
 }
 
 onMounted ( () => {
