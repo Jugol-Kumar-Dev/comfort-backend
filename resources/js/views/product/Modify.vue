@@ -306,9 +306,6 @@
         </div>
     </section>
 
-
-
-
     <div class="modal fade" id="addVariaion"
          tabindex="-1" role="dialog"
          aria-hidden="false">

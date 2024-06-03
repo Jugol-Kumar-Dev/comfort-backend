@@ -3,14 +3,17 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Mail\ForgatePasswordMail;
 use App\Models\Customer;
 use App\Models\User;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 use Intervention\Image\Facades\Image;
 
@@ -38,9 +41,10 @@ class CustomerController extends Controller
 
         $this->validate($request, [
             'name' => 'required|max:30|min:1',
-            'email' => 'required|unique:employees',
+            'email' => 'required|unique:users',
 //            'phone' => 'required|unique:employees',
         ]);
+
         if(!$request->has('fromAdmin')){
             $request->validate([
                 'password' => 'required|min:6'
@@ -205,5 +209,50 @@ class CustomerController extends Controller
         return response()->json("New Password Updated..");
     }
 
+    public function sendForgotPasswordReqs(Request $request): \Illuminate\Http\JsonResponse
+    {
+        $request->validate([
+            'email' => ['required', 'email', Rule::exists('users', 'email')]
+        ]);
+
+
+        $user = User::query()->where('email', \Illuminate\Support\Facades\Request::input('email'))->first();
+
+        if($user != null){
+            if ($user && $user != null){
+                Mail::to($user)->send(new ForgatePasswordMail($user));
+                return \response()->json('Resend Password Mail Send Successfully Done !', 200);
+            }else{
+                return \response()->json('Your Email Address Not Valid...!', 404);
+            }
+        }else{
+            return \response()->json('Your Email Address Not Valid...!', 404);
+        }
+
+    }
+
+    public function checkForgotPassword(){
+        $email = base64_decode(\request()->input("_token"));
+
+        $user = User::where('email', $email)->first();
+
+        if ($user && $user != null){
+            return redirect(env('FRONTEND_URL')."/new-given-password?email=$email");
+        }else{
+            return \response()->json(['message' => 'Email Address is not valid...'], 404);
+        }
+    }
+
+    public function saveNewChangedPassword(Request $request){
+        $request->validate([
+            'email' => 'required|email',
+            'password' => 'min:6|required_with:confirm_password|same:confirm_password',
+        ]);
+        $user = User::where('email', $request->input('email'))->first();
+        $user->password = Hash::make($request->input('password'));
+        $user->update();
+
+        return response()->json('Password Change Successfully Done...', 200);
+    }
 
 }

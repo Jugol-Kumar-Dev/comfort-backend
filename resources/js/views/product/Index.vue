@@ -1,6 +1,6 @@
 <template lang="html">
     <div>
-        <ComponentLoader v-if="isLoading"/>
+        <ComponentLoader v-if="loading"/>
 
         <div v-else class="card card-custom">
             <div class="card-header flex-wrap py-5">
@@ -227,7 +227,7 @@ export default {
                         icon: 'warning',
                         title: err.response.statusText
                     })
-                }).finally(() => this.isLoading = false);
+                }).finally(() => this.loading = false);
 
         },
         showSingleProduct(id) {
@@ -242,7 +242,7 @@ export default {
                         icon: 'error',
                         title: err.response.statusText
                     })
-                }).finally(() => this.isLoading = false);
+                }).finally(() => this.loading = false);
 
         },
         deleteProduct(id) {
@@ -273,11 +273,10 @@ export default {
                         }).finally(() => this.loading = false);
                 }
             }).catch(() => {
-                Swal.fire({
-                    icon: 'success',
-                    title: 'dont worry. your data is safe...'
+                Toast.fire({
+                    icon: 'error',
+                    title: "Successfullly Deleted..."
                 })
-                this.$router.push({name: 'ManageEmployee'});
             })
         },
         priceLimit(stocks){

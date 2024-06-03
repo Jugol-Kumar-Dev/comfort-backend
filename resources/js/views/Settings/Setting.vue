@@ -12,7 +12,13 @@
                 <div class="card cursor-pointer" :class="{ 'bg-primary text-white fw-bolder': currentTab === 'headerPages' }"
                      @click="setActiveTab('headerPages')">
                     <div class="card-body p-4">
-                        Header menu
+                        Top-bar Page
+                    </div>
+                </div>
+                <div class="card cursor-pointer" :class="{ 'bg-primary text-white fw-bolder': currentTab === 'topBarText' }"
+                     @click="setActiveTab('topBarText')">
+                    <div class="card-body p-4">
+                        Top-bar Text
                     </div>
                 </div>
 
@@ -44,7 +50,7 @@
                 </div>
                 <div class="card" v-if="currentTab === 'headerPages'">
                     <div class="card-header d-flex gap-2">
-                        <h3 class="card-title m-0">Header Menu Setup</h3>
+                        <h3 class="card-title m-0">Top-bar Page Setup</h3>
                     </div>
                     <div class="card-body">
                         <div class="form-row">
@@ -56,7 +62,18 @@
                                       label="title"
                                       placeholder="Select Page..."/>
                         </div>
-                        <button class="btn btn-primary fw-bold" @click="saveSetting">Save Setting</button>
+                        <button class="btn btn-primary fw-bold mt-5" @click="saveSetting">Save Setting</button>
+                    </div>
+                </div>
+                <div class="card" v-if="currentTab === 'topBarText'">
+                    <div class="card-header d-flex gap-2">
+                        <h3 class="card-title m-0">Top-bar Page Setup</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-row">
+                            <input type="text" v-model="settings.topBarText" class="form-control" placeholder="Top Bar Text...."/>
+                        </div>
+                        <button class="btn btn-primary fw-bold mt-5" @click="saveSetting">Save Setting</button>
                     </div>
                 </div>
             </div>
@@ -75,7 +92,8 @@ const { sendRequest } = useApi();
 const settings = ref({
     navCats:[],
     homeCats:[],
-    headerPages:[]
+    headerPages:[],
+    topBarText:''
 })
 
 const pages = ref([])

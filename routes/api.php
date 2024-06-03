@@ -63,6 +63,8 @@ Route::post('/category/update/{id}', [CategoryController::class, 'updateCategory
 Route::get("/navbar-categories", [CategoryController::class, 'navCategories']);
 Route::get("/navbar-pages", [PageController::class, 'navPages']);
 
+Route::get("/get-setting/{key}", fn($key)=> get_setting($key));
+
 Route::get("/home-categories", [CategoryController::class, 'homeCategories']);
 
 Route::apiResource('brand',     BrandController::class);
@@ -130,6 +132,13 @@ Route::get("/admin/get-setting", [BusinessSettingController::class, 'index']);
 
 Route::post('login', [CustomerController::class, 'loginCustomer']);
 Route::post('register', [CustomerController::class, 'store']);
+Route::post('/forgot-password', [CustomerController::class, 'sendForgotPasswordReqs']);
+Route::get('/forgot-password-notification', [CustomerController::class, 'checkForgotPassword'])->name('api.forgotPasswordEmail');
+Route::post('/save-new-password', [CustomerController::class, 'saveNewChangedPassword'])->name('api.saveNewChangedPassword');
+
+
+
+
 
 
 Route::get('/all-areas', [OrderAreaController::class, 'getAreas']);

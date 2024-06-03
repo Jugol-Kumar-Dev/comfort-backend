@@ -232,13 +232,13 @@ const routes =[
         name:'ShowOrderDetails',
         component: import('@/views/order/ShowOrder.vue')
     },
-
-    // order areas
-    {
-        path:'/order-areas',
-        name:'OrderAreas',
-        component: import('@/views/OrderArea/Index.vue')
-    },
+    //
+    // // order areas
+    // {
+    //     path:'/shipping-areas',
+    //     name:'ShippingAreas',
+    //     component: import('@/views/Areas/Index.vue')
+    // },
 
 
 
@@ -261,6 +261,13 @@ const routes =[
         path:'/product-reviews',
         name:'Reviews',
         component: ()=>import("@/views/Review/Index.vue")
+    },
+
+    // areas module
+    {
+        path:'/areas',
+        name:'Areas',
+        component: ()=>import("@/views/Areas/Index.vue")
     },
 
     // product reviews module

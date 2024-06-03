@@ -3,19 +3,39 @@
 <head>
     <base href="">
     <meta charset="utf-8" />
-    <title>Comfort | Inventory</title>
-
     <link rel="apple-touch-icon" sizes="180x180" href="{{ asset("fav.png") }}">
     <link rel="icon" type="image/svg" sizes="32x32" href="{{ asset("fav.png") }}">
     <link rel="icon" type="image/svg" sizes="16x16" href="{{ asset("fav.png") }}">
 
 
+    <title>Semi Healthcare Products - Comfortwing</title>
+    <meta name="description" content="Comfort Wing’s is our registered Brand. Our main activities are building & developing new innovative products in specific category semi Healthcare products." />
+    <link rel="canonical" href="https://comfortwing.com/" />
+    <meta property="og:locale" content="en_US" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Web Design Company in Bangladesh" />
+    <meta property="og:description" content="Comfort Wing’s is our registered Brand. Our main activities are building & developing new innovative products in specific category semi Healthcare products." />
+    <meta property="og:url" content="https://comfortwing.com/" />
+    <meta property="og:site_name" content="Best Web Design Company in Bangladesh Creative Tech Park" />
+    <meta property="article:publisher" content="https://www.facebook.com/comfortwingspillows/" />
+    <meta property="og:image" content="https://comfortwing.com/logo.png" />
+    <meta property="og:image:width" content="224" />
+    <meta property="og:image:height" content="65" />
+    <meta property="og:image:type" content="image/png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Comfortwing | Semi Healthcare Products" />
+    <meta name="twitter:description" content="Comfort Wing’s is our registered Brand. Our main activities are building & developing new innovative products in specific category semi Healthcare products." />
+    <meta name="twitter:image" content="https://comfortwing.com/logo.png" />
+    <meta name="twitter:site" content="@comfortwing" />
+
+
+
     <link href="{{ asset('css/app.css') }}" rel="stylesheet" type="text/css" />
-    <link href="{{ asset('backend/assets/css/plugins.bundle.css') }}" rel="stylesheet" type="text/css" />
-    <link href="{{ asset('backend/assets/css/style.bundle.css') }}" rel="stylesheet" type="text/css" />
-    <link href="{{ asset('backend/assets/css/login-4.css') }}" rel="stylesheet" type="text/css" />
-    <link href="{{ asset('backend/assets/css/light.css') }}" rel="stylesheet" type="text/css" />
-    <link href="{{ asset('backend/assets/css/dark.css') }}" rel="stylesheet" type="text/css" />
+    <link href="{{ asset('backend/assets/css/plugins.bundle.css?v=1') }}" rel="stylesheet" type="text/css" />
+    <link href="{{ asset('backend/assets/css/style.bundle.css?=1') }}" rel="stylesheet" type="text/css" />
+    <link href="{{ asset('backend/assets/css/login-4.css?v=1') }}" rel="stylesheet" type="text/css" />
+    <link href="{{ asset('backend/assets/css/light.css?v=1') }}" rel="stylesheet" type="text/css" />
+    <link href="{{ asset('backend/assets/css/dark.css?v=1') }}" rel="stylesheet" type="text/css" />
 
     <meta name="csrf-token" content="{{ csrf_token() }}">
 </head>

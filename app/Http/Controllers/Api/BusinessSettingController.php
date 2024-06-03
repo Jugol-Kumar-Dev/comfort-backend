@@ -27,7 +27,8 @@ class BusinessSettingController extends Controller
                 'navCats' => json_decode(get_setting('navCats')),
                 'homeCats' => json_decode(get_setting('homeCats')),
                 'headerPages' => json_decode(get_setting('headerPages')),
-                'footPages' => json_decode(get_setting('footerPages'))
+                'footPages' => json_decode(get_setting('footerPages')),
+                'topBarText' => get_setting('topBarText'),
             ]
         ];
 
