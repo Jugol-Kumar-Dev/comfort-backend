@@ -19,7 +19,7 @@ use Intervention\Image\Facades\Image;
 
 class CustomerController extends Controller
 {
-    public function index(Request $request)
+    public function index(Request $request): \Illuminate\Http\JsonResponse
     {
         $request->only(['onlyData']);
 
@@ -35,7 +35,7 @@ class CustomerController extends Controller
         return response()->json($customers);
     }
 
-    public function store(Request $request)
+    public function store(Request $request): \Illuminate\Http\JsonResponse
     {
 
 
@@ -91,25 +91,25 @@ class CustomerController extends Controller
             return response()->json(['message' =>'Customer save without image'], 200);
         }
     }
-    public function show($id)
+    public function show($id): \Illuminate\Http\JsonResponse
     {
         $customer = User::findOrFail($id);
         return response()->json($customer);
     }
-    public function update(Request $request, $id)
+    public function update(Request $request, $id): \Illuminate\Http\JsonResponse
     {
         $customer = User::findOrFail($id);
         $customer->update($request->all());
         return response()->json(['message' =>'Customer update...'], 200);
     }
-    public function destroy($id)
+    public function destroy($id): \Illuminate\Http\JsonResponse
     {
         $user = User::findOrFail($id);
         $user->delete();
         return response()->json(['message' =>'Customer delete without image'], 200);
     }
 
-    public function loginCustomer(Request $request)
+    public function loginCustomer(Request $request): \Illuminate\Http\JsonResponse
     {
         $request->validate([
            'email' => 'required|email',
@@ -126,6 +126,7 @@ class CustomerController extends Controller
             }
 
             $user = Auth::user();
+            $user->tokens()->delete();
             $user->token =  $user->createToken('MyApp')->plainTextToken;
 
             return response()->json([
@@ -147,18 +148,27 @@ class CustomerController extends Controller
 
 
 
-    public function logoutCustomer(Request $request)
+    public function logoutCustomer(Request $request): \Illuminate\Http\JsonResponse
     {
         Auth::guard('web')->logout();
+        $request->user()->tokens()->delete();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
-        return response()->noContent();
+        return response()->json([
+            'message' => "logout successfully done..."
+        ]);
     }
 
 
-    public function updateProfile(Request $request)
+    public function updateProfile(Request $request): \Illuminate\Http\JsonResponse
     {
-        $user = User::findOrFail($request->id);
+        $request->validate([
+            'name' => 'required',
+            'email' => 'required',
+            'phone' => 'required'
+        ]);
+
+        $user = $request->user();
         $user->full_name = $request->input('name');
         $user->email = $request->input('email');
         $user->phone = $request->input('phone');
@@ -168,9 +178,9 @@ class CustomerController extends Controller
     }
 
 
-    public function updatePassword(Request $request)
+    public function updatePassword(Request $request): \Illuminate\Http\JsonResponse|\Illuminate\Http\RedirectResponse
     {
-        $user = User::query()->findOrFail($request->id);
+        $user = $request->user();
         $hashedPassword = $user->password;
 
         $request->validate([
@@ -218,35 +228,53 @@ class CustomerController extends Controller
 
         $user = User::query()->where('email', \Illuminate\Support\Facades\Request::input('email'))->first();
 
-        if($user != null){
-            if ($user && $user != null){
-                Mail::to($user)->send(new ForgatePasswordMail($user));
-                return \response()->json('Resend Password Mail Send Successfully Done !', 200);
+        $isMailSetup =
+            env('MAIL_HOST') &&
+            env('MAIL_MAILER') &&
+            env('MAIL_PORT') &&
+            env('MAIL_USERNAME') &&
+            env('MAIL_PASSWORD') &&
+            env('MAIL_FROM_ADDRESS');
+        if($isMailSetup){
+            if($user != null){
+                if ($user && $user != null){
+                    Mail::to($user)->send(new ForgatePasswordMail($user));
+                    return \response()->json('Resend Password Mail Send Successfully Done !', 200);
+                }else{
+                    return \response()->json('Your Email Address Not Valid...!', 404);
+                }
             }else{
                 return \response()->json('Your Email Address Not Valid...!', 404);
             }
         }else{
-            return \response()->json('Your Email Address Not Valid...!', 404);
+            return \response()->json('Email Server Credentials Not Setup...!', 404);
         }
-
     }
 
-    public function checkForgotPassword(){
+    public function checkForgotPassword(): \Illuminate\Foundation\Application|\Illuminate\Http\JsonResponse|\Illuminate\Routing\Redirector|\Illuminate\Contracts\Foundation\Application|\Illuminate\Http\RedirectResponse
+    {
         $email = base64_decode(\request()->input("_token"));
 
         $user = User::where('email', $email)->first();
 
         if ($user && $user != null){
+            if(\request()->get('not_redirect')){
+                return response()->json([
+                    'email' => $email,
+                    'message' => 'Token Is Verified...'
+                ]);
+            }
             return redirect(env('FRONTEND_URL')."/new-given-password?email=$email");
         }else{
             return \response()->json(['message' => 'Email Address is not valid...'], 404);
         }
     }
 
-    public function saveNewChangedPassword(Request $request){
+    public function saveNewChangedPassword(Request $request): \Illuminate\Http\JsonResponse
+    {
         $request->validate([
             'email' => 'required|email',
-            'password' => 'min:6|required_with:confirm_password|same:confirm_password',
+            'password' => 'required|min:6|required_with:confirm_password|same:confirm_password',
         ]);
         $user = User::where('email', $request->input('email'))->first();
         $user->password = Hash::make($request->input('password'));

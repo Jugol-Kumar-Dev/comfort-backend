@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Jobs\EmailQueueJob;
 use App\Mail\SendEmail;
+use App\Models\GetItTach;
 use App\Models\Question;
 use App\Models\Review;
 use App\Models\User;
@@ -52,7 +53,7 @@ class EmailToolsController extends Controller
                 $batch->add(new EmailQueueJob($email, $request->input('subject'), $request->input('message')));
 
                 // mail queue system
-                // Mail::to($email)->send(new SendEmail($request->input('subject'), $request->input('message')));
+                // Mail::to($email)->send(new SupportController($request->input('subject'), $request->input('message')));
                 // job system
                 // EmailQueueJob::dispatch($email, $request->input('subject'), $request->input('message'));//->delay(3);
             }
@@ -73,6 +74,16 @@ class EmailToolsController extends Controller
     {
         Bus::findBatch($id)->delete();
     }
+
+    public function getAllLeads()
+    {
+        return GetItTach::all();
+    }
+    public function deleteLead($id)
+    {
+        GetItTach::findOrFail($id)->delete();
+    }
+
 
 
 }

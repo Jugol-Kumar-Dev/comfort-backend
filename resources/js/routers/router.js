@@ -288,6 +288,11 @@ const routes =[
         name:'ManageCampaigns',
         component: ()=>import("@/views/Email/ManageCampaign.vue")
     },
+    {
+        path:'/manage-leads',
+        name:'ManageLeads',
+        component: ()=>import("@/views/Email/ManageLeads.vue")
+    },
     // page management
     {
         path:'/pages',

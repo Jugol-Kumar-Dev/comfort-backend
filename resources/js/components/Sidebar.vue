@@ -542,6 +542,15 @@
                                         <span class="menu-text">Manage Campaigns</span>
                                     </router-link>
                                 </li>
+
+                                <li class="menu-item menu-item-submenu" aria-haspopup="true" data-menu-toggle="hover">
+                                    <router-link :to="{ name: 'ManageLeads' }" class="menu-link menu-toggle">
+                                        <i class="menu-bullet menu-bullet-line">
+                                            <span></span>
+                                        </i>
+                                        <span class="menu-text">Manage Leads</span>
+                                    </router-link>
+                                </li>
                             </ul>
                         </div>
                     </li>

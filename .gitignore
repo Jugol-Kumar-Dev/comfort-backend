@@ -27,3 +27,5 @@ yarn-error.log
 *.tar.gz
 *.rar
 **/*.zip
+/public/dist
+**/public/bild

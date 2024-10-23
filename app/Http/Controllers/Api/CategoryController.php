@@ -89,7 +89,7 @@ class CategoryController extends Controller
 
         $this->validate($request, [
             'name' => 'required|max:30|min:1|unique:categories,name,' .$request->id,
-            'photo' => 'nullable'
+            'photo' => 'nullable'z
         ]);
 
 

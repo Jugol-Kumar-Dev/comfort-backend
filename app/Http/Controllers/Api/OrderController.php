@@ -27,9 +27,26 @@ class OrderController extends Controller
             'data' => $orders
         ]);
     }
+
     public function store(Request $request)
     {
-        if(Auth::check()) {
+
+        if (Auth::check()) {
+
+            $request->validate([
+                'addressId' => 'required',
+                'paymentMethod' => 'required',
+                'orderTotal' => 'required',
+                'orders' => 'required|array',
+                'orders.*.data.id' => 'required|exists:products,id',
+                'orders.*.selectSku.id' => 'required|exists:product_stocks,id',
+            ], [
+                'orders.*.data.id.required' => 'The product  ID is required for each order',
+                'orders.*.data.id.exists' => 'The selected product ID does not exist.',
+                'orders.*.selectSku.required' => 'The SKU selection is required for each order.',
+                'orders.*.selectSku.id.exists' => 'The selected SKU ID does not exist.',
+            ]);
+
             $address = Address::with('orderArea')->findOrFail($request->addressId);
             $grandTotal = $address->orderArea->delivery_charge + $request->orderTotal;
 
@@ -45,23 +62,23 @@ class OrderController extends Controller
             ]);
 
             $orderDetails = [];
-            foreach ($request->orders as $key => $item){
-                $orderDetails[] =[
-                  'order_id' => $order->id,
-                  'product_id' => $item['data']['id'],
-                  'product_stock_id' => (!empty($item["selectSku"]) && !empty($item["selectSku"]["id"])) ? $item["selectSku"]["id"] : NULL,
-                  'quantity' => $item["selectSku"]["selectQty"]
+            foreach ($request->orders as $key => $item) {
+                $orderDetails[] = [
+                    'order_id' => $order->id,
+                    'product_id' => $item['data']['id'],
+                    'product_stock_id' => (!empty($item["selectSku"]) && !empty($item["selectSku"]["id"])) ? $item["selectSku"]["id"] : NULL,
+                    'quantity' => $item["selectSku"]["selectQty"] ?? 1
                 ];
-                if(!empty($item["selectSku"]) && !empty($item["selectSku"]["id"])){
+                if (!empty($item["selectSku"]) && !empty($item["selectSku"]["id"])) {
                     $stock = ProductStock::where('id', $item["selectSku"]["id"])->first();
-                    if($stock){
+                    if ($stock) {
                         $stock->qty = $stock->qty - $item["selectSku"]["selectQty"];
                         $stock->save();
                     }
                 }
-                if(!empty($item["selectSku"]) && !empty($item["selectSku"]["sku"])){
+                if (!empty($item["selectSku"]) && !empty($item["selectSku"]["sku"])) {
                     $product = Product::query()->whereSku($item["selectSku"]["sku"])->first();
-                    if($product){
+                    if ($product) {
                         $product->stock = $product->stock - $item["selectSku"]["selectQty"];
                         $product->save();
                     }
@@ -69,7 +86,7 @@ class OrderController extends Controller
             }
             $order->orderdetails()->createMany($orderDetails);
 
-            if( $request->input('paymentMethod') == 'stripe'){
+            if ($request->input('paymentMethod') == 'stripe') {
                 $stripe = new StripeController();
 
                 $session = $stripe->checkout($order, $orderDetails);
@@ -78,29 +95,30 @@ class OrderController extends Controller
 
                 return response()->json([
                     'type' => 'stripe_payment',
-                    'message' =>'Order save successfully done.',
+                    'message' => 'Order save successfully done.',
                     'data' => $session->url,
                 ], 200);
-            }else{
+            } else {
                 return response()->json([
                     'type' => 'cache_on_delivery',
-                    'message' =>'Order save successfully done.',
+                    'message' => 'Order save successfully done.',
                     'data' => $order,
                 ], 200);
             }
         }
 
-
         throw new AuthenticationException();
 
     }
+
     public function show(Order $order)
     {
-        return response()->json(Order::find('id',$order->id)->with('orderdetails')->first());
+        return response()->json(Order::find('id', $order->id)->with('orderdetails')->first());
     }
 
-    public function orderDetails($id){
-        $order = Order::with(['orderdetails', 'orderdetails.product','orderdetails.stoke', 'customer', 'address.orderArea'])->findOrFail($id);
+    public function orderDetails($id)
+    {
+        $order = Order::with(['orderdetails', 'orderdetails.product', 'orderdetails.stoke', 'customer', 'address.orderArea'])->findOrFail($id);
         return response()->json($order, 200);
     }
 
@@ -108,6 +126,7 @@ class OrderController extends Controller
     {
         //
     }
+
     public function destroy(Order $order)
     {
         $order->orderdetails()->delete();
@@ -116,11 +135,12 @@ class OrderController extends Controller
     }
 
 
-    public function changeOrderStatus(Request  $request){
+    public function changeOrderStatus(Request $request)
+    {
         $order = Order::findOrFail($request->id);
-        if($request->input('type') == 'payment'){
+        if ($request->input('type') == 'payment') {
             $order->payment_status = Str::lower($request->input('status'));
-        }else{
+        } else {
             $order->order_status = Str::lower($request->input('status'));
         }
         $order->update();
@@ -128,11 +148,10 @@ class OrderController extends Controller
         return response()->json(['message' => 'Status Updated...']);
     }
 
-    public function changePaymentStatus(){
+    public function changePaymentStatus()
+    {
         return dd(\request()->all());
     }
-
-
 
 
 }

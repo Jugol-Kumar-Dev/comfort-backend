@@ -40,7 +40,8 @@ use Illuminate\Support\Facades\Route;
 
 Route::group([
     'prefix' => 'auth',
-], function (){
+], function ()
+{
     Route::post('login',    [AuthController::class, 'login']);
     Route::post('logout',   [AuthController::class, 'logout']);
     Route::post('refresh',  [AuthController::class, 'refresh']);
@@ -60,13 +61,6 @@ Route::apiResource('supplier',  SupplierController::class);
 Route::apiResource('category',  CategoryController::class); //->only(['index', 'show', 'store', 'destroy']);
 Route::post('/category/update/{id}', [CategoryController::class, 'updateCategory']);
 
-Route::get("/navbar-categories", [CategoryController::class, 'navCategories']);
-Route::get("/navbar-pages", [PageController::class, 'navPages']);
-
-Route::get("/get-setting/{key}", fn($key)=> get_setting($key));
-
-Route::get("/home-categories", [CategoryController::class, 'homeCategories']);
-
 Route::apiResource('brand',     BrandController::class);
 Route::post('/brand/update/{id}', [BrandController::class, 'updateBrand']);
 
@@ -80,8 +74,6 @@ Route::apiResource('salary',    SalaryController::class);
 Route::apiResource('customer',  CustomerController::class);
 //Route::post('/update-customer/${id}',  [CustomerController::class, 'update']);
 
-Route::post('/customer/profile-update', [CustomerController::class, 'updateProfile']);
-Route::post('/customer/update-password', [CustomerController::class, 'updatePassword']);
 
 Route::apiResource('pos',       PosController::class);
 
@@ -92,9 +84,6 @@ Route::get("/change-order-status", [OrderController::class, 'changeOrderStatus']
 Route::get("/change-payment-status", [OrderController::class, 'changePaymentStatus']);
 
 
-
-
-
 Route::delete('/pos/delete-cart/{id}',          [PosController::class, 'deleteItem']);
 
 Route::get('/pos/increment-cart-product/{id}',  [PosController::class, 'incrementProductQty']);
@@ -103,9 +92,6 @@ Route::get('/pos/decrement-cart-product/{id}',  [PosController::class, 'decremen
 Route::get('/month-salaries/{id}',              [SalaryController::class, 'monthSalary']);
 Route::get('/all-month',                        [MonthController::class, 'index']);
 Route::get('/employee-salary/{id}',             [MonthController::class, 'employeeSalary']);
-Route::get('/product-by-category-id/{id}',      [ProductController::class, 'productByCategory']);
-
-
 
 
 Route::get('varients', [VariationController::class, 'index']);
@@ -127,23 +113,25 @@ Route::get('/admin/pos-products', [ProductController::class, 'posProducts']);
 
 Route::get('/admin/delete-area/{id}', [OrderAreaController::class, 'destroy']);
 
+
+
+
+// admin router
+Route::get('/admin/orders', [AdminOrderController::class, 'index']);
+Route::get('/admin/product-stokes', [ProductController::class, 'stokeProducts']);
+Route::put('/admin/update-stokes/{id}', [ProductController::class, 'updateStoke']);
+
+Route::get('/admin/areas', [OrderAreaController::class, 'index']);
+Route::post('/admin/areas-save', [OrderAreaController::class, 'store']);
+
+
+
+
+// slider management
+Route::resource('/sliders', SliderController::class);
+
 Route::post("/admin/save-setting", [BusinessSettingController::class, 'updateSetting']);
 Route::get("/admin/get-setting", [BusinessSettingController::class, 'index']);
-
-Route::post('login', [CustomerController::class, 'loginCustomer']);
-Route::post('register', [CustomerController::class, 'store']);
-Route::post('/forgot-password', [CustomerController::class, 'sendForgotPasswordReqs']);
-Route::get('/forgot-password-notification', [CustomerController::class, 'checkForgotPassword'])->name('api.forgotPasswordEmail');
-Route::post('/save-new-password', [CustomerController::class, 'saveNewChangedPassword'])->name('api.saveNewChangedPassword');
-
-
-
-
-
-
-Route::get('/all-areas', [OrderAreaController::class, 'getAreas']);
-Route::post('/save-new-address', [OrderAreaController::class, 'saveAddress']);
-
 
 //review system routes
 Route::apiResource('/review', ReviewController::class);
@@ -155,18 +143,52 @@ Route::post('/send-emails', [EmailToolsController::class, 'sendEmails']);
 Route::get('/get-all-campaign', [EmailToolsController::class, 'getCampaign']);
 Route::delete('/delete-campaign/{id}', [EmailToolsController::class, 'deleteCampaign']);
 
+// leads management (get in touch)
+Route::get('/get-all-leads', [EmailToolsController::class, 'getAllLeads']);
+Route::delete('/delete-lead/{id}', [EmailToolsController::class, 'deleteLead']);
+
 // page management
 Route::resource('pages', PageController::class);
 Route::post('/pages/update/{id}', [PageController::class, 'updatePage'])->name('pages.updatePage');
 
-// slider management
-Route::resource('/sliders', SliderController::class);
 
 
-// get settings for frontend
+
+
+
+
+
+// frontend area routes
+Route::post('login', [CustomerController::class, 'loginCustomer']);
+Route::post('register', [CustomerController::class, 'store']);
+Route::post('/forgot-password', [CustomerController::class, 'sendForgotPasswordReqs']);
+Route::get('/forgot-password-notification', [CustomerController::class, 'checkForgotPassword'])->name('api.forgotPasswordEmail');
+Route::post('/save-new-password', [CustomerController::class, 'saveNewChangedPassword'])->name('api.saveNewChangedPassword');
+
+
+
+Route::get("/navbar-categories", [CategoryController::class, 'navCategories']);
+Route::get("/navbar-pages", [PageController::class, 'navPages']);
+Route::get("/get-setting/{key}", fn($key)=> get_setting($key));
 Route::get('/get-footer-settings', [BusinessSettingController::class, 'getFooterSettings']);
+Route::get("/home-categories", [CategoryController::class, 'homeCategories']);
+Route::get('/product-by-category-id/{id}',      [ProductController::class, 'productByCategory']);
 
-Route::middleware('auth:sanctum')->group(function(){
+
+Route::get('/all-areas', [OrderAreaController::class, 'getAreas']);
+Route::post('/save-new-address', [OrderAreaController::class, 'saveAddress']);
+
+
+
+Route::post('/checkout', [StripeController::class, 'checkout'])->name('checkout');
+Route::post('/verify', [StripeController::class, 'verify'])->name('verify');
+Route::get('/success', [StripeController::class, 'index'])->name('success');
+Route::get('/cancel', [StripeController::class, 'cancel'])->name('cancel');
+
+Route::post('/get-in-tech', [\App\Http\Controllers\SupportController::class, 'store']);
+
+
+Route::middleware(['auth:sanctum', 'api'])->group(function(){
     Route::get('user', function (Request $request){
         return $request->user();
     });
@@ -178,28 +200,17 @@ Route::middleware('auth:sanctum')->group(function(){
     Route::get('auth-data',  [ProductController::class, 'variationsProducts']);
 
 
+    Route::post('/customer/profile-update', [CustomerController::class, 'updateProfile']);
+    Route::post('/customer/update-password', [CustomerController::class, 'updatePassword']);
 
-    // admin router
-    Route::get('/admin/orders', [AdminOrderController::class, 'index']);
-    Route::get('/admin/product-stokes', [ProductController::class, 'stokeProducts']);
-    Route::put('/admin/update-stokes/{id}', [ProductController::class, 'updateStoke']);
-
-
-    Route::get('/admin/areas', [OrderAreaController::class, 'index']);
-    Route::post('/admin/areas-save', [OrderAreaController::class, 'store']);
-
-    Route::get('logout', [CustomerController::class, 'logoutCustomer']);
+    Route::any('logout', [CustomerController::class, 'logoutCustomer']);
 });
 
 
-Route::post('/checkout', [StripeController::class, 'checkout'])->name('checkout');
-Route::post('/verify', [StripeController::class, 'verify'])->name('verify');
-Route::get('/success', [StripeController::class, 'index'])->name('success');
-Route::get('/cancel', [StripeController::class, 'cancel'])->name('cancel');
+
 
 
 Route::post('save/emp', [EmployeeController::class, 'saveEmp']);
-
 Route::get("/storage", function (){
     \Illuminate\Support\Facades\Artisan::call('storage:link');
     return "storage linked";

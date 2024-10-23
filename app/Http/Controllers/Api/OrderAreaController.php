@@ -123,7 +123,8 @@ class OrderAreaController extends Controller
             'title' => 'required',
 //            'email' => ['required', 'email'],
 //            'phone' => ['required'],
-            'area' => 'required',
+            'user_id' => 'required',
+            'area' => 'required|exists:order_areas,id',
             'address' => ['required']
         ]);
 
@@ -133,7 +134,7 @@ class OrderAreaController extends Controller
         $data['set_default'] = filled(Request::input('isPrimary'));
 
         Address::create($data);
-        return response()->json(['message' => 'Area Deleted...']);
+        return response()->json(['message' => 'Address Created Done...']);
     }
 
 

@@ -17,7 +17,7 @@ class ForgatePasswordMail extends Mailable
      *
      * @return void
      */
-    private $user;
+    private User $user;
     public function __construct(User $user)
     {
         $this->user = $user;
@@ -28,7 +28,7 @@ class ForgatePasswordMail extends Mailable
      *
      * @return $this
      */
-    public function build()
+    public function build(): static
     {
         return $this->view('forgotpasswrod')->with([
             'user' => $this->user
